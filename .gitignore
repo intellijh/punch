@@ -74,3 +74,10 @@ application-prod.yml
 # Markdown
 *.md
 !README.md
+
+# Node
+node_modules/
+package-lock.json
+
+# Tailwind CSS
+src/main/resources/static/css/style.css

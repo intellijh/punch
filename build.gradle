@@ -44,3 +44,23 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Tailwind CSS 빌드 태스크
+tasks.register('buildTailwind', Exec) {
+	description = 'Build Tailwind CSS'
+	group = 'build'
+
+	commandLine 'cmd', '/c', 'npm', 'run', 'build:css'
+
+	inputs.files(
+		fileTree('src/main/resources/templates'),
+		fileTree('src/main/resources/static/js'),
+		file('src/main/resources/static/css/input.css')
+	)
+	outputs.file('src/main/resources/static/css/style.css')
+}
+
+// processResources 전에 Tailwind 빌드 실행
+tasks.named('processResources') {
+	dependsOn 'buildTailwind'
+}
