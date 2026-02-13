@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Punch</title>
+
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+    <!-- Additional CSS -->
+    <th:block layout:fragment="extra-css"></th:block>
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        <div layout:fragment="content">
+            <!-- Page content will be inserted here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Additional JavaScript -->
+    <th:block layout:fragment="extra-js"></th:block>
+</body>
+</html>
