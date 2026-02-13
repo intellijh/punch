@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: PunchShop-Test
+
+  # Banner Configuration
+  main:
+    banner-mode: off
+
+  # H2 In-Memory Database Configuration for Testing
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  # JPA Configuration for Testing
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+
+  # H2 Console (optional, for debugging)
+  h2:
+    console:
+      enabled: false
+
+  # Thymeleaf Configuration
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+
+# Logging Configuration
+logging:
+  level:
+    root: WARN
+    com.punch.shop: DEBUG
+
+# P6Spy Configuration
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+      multiline: true
+      logging: slf4j
