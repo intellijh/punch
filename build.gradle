@@ -58,6 +58,9 @@ tasks.register('buildTailwind', Exec) {
 		file('src/main/resources/static/css/input.css')
 	)
 	outputs.file('src/main/resources/static/css/style.css')
+
+	// 태스크 항상 실행
+	outputs.upToDateWhen { false }
 }
 
 // processResources 전에 Tailwind 빌드 실행
