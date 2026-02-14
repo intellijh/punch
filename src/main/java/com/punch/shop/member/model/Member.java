@@ -26,6 +26,7 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, length = 11)
     private String phone;
 
     @Enumerated(EnumType.STRING)
