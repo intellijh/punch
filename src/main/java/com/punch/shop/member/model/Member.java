@@ -47,4 +47,13 @@ public class Member extends BaseEntity {
     public void updatePassword(String password) {
         this.password = password;
     }
+
+    public static Member create(String email, String encodedPassword, String name, String phone) {
+        return Member.builder()
+                .email(email)
+                .password(encodedPassword)
+                .name(name)
+                .phone(phone)
+                .build();
+    }
 }
