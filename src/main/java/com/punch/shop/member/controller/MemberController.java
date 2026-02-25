@@ -24,6 +24,11 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @GetMapping("/login")
+    public String loginForm() {
+        return "member/login";
+    }
+
     @GetMapping("/register")
     public String registerForm(Model model) {
         model.addAttribute("memberRegisterRequest", new MemberRegisterRequest());

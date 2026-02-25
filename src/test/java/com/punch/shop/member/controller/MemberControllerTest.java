@@ -30,6 +30,14 @@ class MemberControllerTest {
     private MemberService memberService;
 
     @Test
+    @DisplayName("로그인 폼 페이지 요청")
+    void loginForm() throws Exception {
+        mockMvc.perform(get("/member/login"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("member/login"));
+    }
+
+    @Test
     @DisplayName("회원가입 폼 페이지 요청")
     void registerForm() throws Exception {
         mockMvc.perform(get("/member/register"))
