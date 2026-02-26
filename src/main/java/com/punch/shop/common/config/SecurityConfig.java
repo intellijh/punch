@@ -20,7 +20,8 @@ public class SecurityConfig {
             "/member/login",
             "/css/**",
             "/js/**",
-            "/images/**"
+            "/images/**",
+            "/favicon.ico"
     };
 
     private static final String LOGIN_PAGE_URL = "/member/login";
