@@ -1,6 +1,7 @@
 package com.punch.shop.member.model;
 
 import com.punch.shop.common.model.BaseEntity;
+import com.punch.shop.common.util.PhoneUtils;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,7 +42,7 @@ public class Member extends BaseEntity {
 
     public void updateProfile(String name, String phone) {
         this.name = name;
-        this.phone = phone;
+        this.phone = PhoneUtils.validateAndNormalize(phone);
     }
 
     public void updatePassword(String password) {
@@ -53,7 +54,7 @@ public class Member extends BaseEntity {
                 .email(email)
                 .password(encodedPassword)
                 .name(name)
-                .phone(phone)
+                .phone(PhoneUtils.validateAndNormalize(phone))
                 .build();
     }
 }

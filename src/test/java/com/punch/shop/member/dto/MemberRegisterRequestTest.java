@@ -3,8 +3,6 @@ package com.punch.shop.member.dto;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,23 +12,46 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MemberRegisterRequestTest {
 
-    private Validator validator;
-
-    @BeforeEach
-    void setUp() {
-        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            validator = factory.getValidator();
-        }
-    }
+    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @Test
-    @DisplayName("유효한 회원가입 요청")
+    @DisplayName("유효한 회원가입 요청 - 하이픈 포함")
     void validRequest() {
         MemberRegisterRequest request = MemberRegisterRequest.builder()
                 .email("test@example.com")
                 .password("password123")
                 .name("홍길동")
                 .phone("010-1234-5678")
+                .build();
+
+        Set<ConstraintViolation<MemberRegisterRequest>> violations = validator.validate(request);
+
+        assertThat(violations).isEmpty();
+    }
+
+    @Test
+    @DisplayName("유효한 회원가입 요청 - 하이픈 없이 숫자만")
+    void validRequestWithDigitsOnly() {
+        MemberRegisterRequest request = MemberRegisterRequest.builder()
+                .email("test@example.com")
+                .password("password123")
+                .name("홍길동")
+                .phone("01012345678")
+                .build();
+
+        Set<ConstraintViolation<MemberRegisterRequest>> violations = validator.validate(request);
+
+        assertThat(violations).isEmpty();
+    }
+
+    @Test
+    @DisplayName("유효한 회원가입 요청 - 공백 구분자")
+    void validRequestWithSpaceSeparator() {
+        MemberRegisterRequest request = MemberRegisterRequest.builder()
+                .email("test@example.com")
+                .password("password123")
+                .name("홍길동")
+                .phone("010 1234 5678")
                 .build();
 
         Set<ConstraintViolation<MemberRegisterRequest>> violations = validator.validate(request);
@@ -178,79 +199,19 @@ class MemberRegisterRequestTest {
     }
 
     @Test
-    @DisplayName("전화번호 형식이 올바르지 않으면 검증 실패")
-    void phoneNumberFormatInvalid() {
+    @DisplayName("전화번호에 허용되지 않는 문자가 포함되면 검증 실패")
+    void phoneNumberContainsInvalidCharacters() {
         MemberRegisterRequest request = MemberRegisterRequest.builder()
                 .email("test@example.com")
                 .password("password123")
                 .name("홍길동")
-                .phone("01012345678")
+                .phone("010#1234#5678")
                 .build();
 
         Set<ConstraintViolation<MemberRegisterRequest>> violations = validator.validate(request);
 
         assertThat(violations).hasSize(1);
         assertThat(violations).extracting(ConstraintViolation::getMessage)
-                .containsOnly("전화번호 형식이 올바르지 않습니다 (예: 010-1234-5678)");
-    }
-
-    @Test
-    @DisplayName("전화번호 형식 - 4자리 중간번호도 허용")
-    void phoneNumberWith4DigitMiddle() {
-        MemberRegisterRequest request = MemberRegisterRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .name("홍길동")
-                .phone("010-1234-5678")
-                .build();
-
-        Set<ConstraintViolation<MemberRegisterRequest>> violations = validator.validate(request);
-
-        assertThat(violations).isEmpty();
-    }
-
-    @Test
-    @DisplayName("전화번호 형식 - 3자리 중간번호도 허용")
-    void phoneNumberWith3DigitMiddle() {
-        MemberRegisterRequest request = MemberRegisterRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .name("홍길동")
-                .phone("010-123-5678")
-                .build();
-
-        Set<ConstraintViolation<MemberRegisterRequest>> violations = validator.validate(request);
-
-        assertThat(violations).isEmpty();
-    }
-
-    @Test
-    @DisplayName("전화번호 하이픈 제거 변환")
-    void getPhoneWithoutHyphen() {
-        MemberRegisterRequest request = MemberRegisterRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .name("홍길동")
-                .phone("010-1234-5678")
-                .build();
-
-        String phoneWithoutHyphen = request.getPhoneWithoutHyphen();
-
-        assertThat(phoneWithoutHyphen).isEqualTo("01012345678");
-    }
-
-    @Test
-    @DisplayName("전화번호가 null이면 null 반환")
-    void getPhoneWithoutHyphenWhenNull() {
-        MemberRegisterRequest request = MemberRegisterRequest.builder()
-                .email("test@example.com")
-                .password("password123")
-                .name("홍길동")
-                .phone(null)
-                .build();
-
-        String phoneWithoutHyphen = request.getPhoneWithoutHyphen();
-
-        assertThat(phoneWithoutHyphen).isNull();
+                .containsOnly("전화번호는 숫자, 하이픈(-), 공백만 입력 가능합니다");
     }
 }

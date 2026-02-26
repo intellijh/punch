@@ -22,17 +22,12 @@ class MemberRepositoryTest {
     private MemberRepository memberRepository;
 
     private Member createMember(String email, String name) {
-        return Member.builder()
-                .email(email)
-                .password("encodedPassword")
-                .name(name)
-                .phone("010-1234-5678")
-                .build();
+        return Member.create(email, "encodedPassword", name, "010-1234-5678");
     }
 
     @Test
-    @DisplayName("회원 저장 및 조회")
-    void save_and_findById() {
+    @DisplayName("회원 저장 - 기본값 및 Auditing 적용 확인")
+    void save() {
         Member member = createMember("test@example.com", "홍길동");
 
         Member saved = memberRepository.save(member);
