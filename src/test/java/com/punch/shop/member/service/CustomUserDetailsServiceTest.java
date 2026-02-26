@@ -1,6 +1,7 @@
 package com.punch.shop.member.service;
 
 import com.punch.shop.member.model.Member;
+import com.punch.shop.member.model.MemberPrincipal;
 import com.punch.shop.member.model.Role;
 import com.punch.shop.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -9,8 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -38,15 +41,19 @@ class CustomUserDetailsServiceTest {
                 .name("홍길동")
                 .phone("01012345678")
                 .build();
+        ReflectionTestUtils.setField(member, "id", 1L);
 
         given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
 
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
-        assertThat(userDetails.getUsername()).isEqualTo(email);
-        assertThat(userDetails.getPassword()).isEqualTo("encodedPassword");
-        assertThat(userDetails.getAuthorities())
-                .extracting("authority")
+        assertThat(userDetails).isInstanceOf(MemberPrincipal.class);
+        MemberPrincipal principal = (MemberPrincipal) userDetails;
+        assertThat(principal.getMemberId()).isEqualTo(1L);
+        assertThat(principal.getUsername()).isEqualTo(email);
+        assertThat(principal.getPassword()).isEqualTo("encodedPassword");
+        assertThat(principal.getAuthorities())
+                .extracting(GrantedAuthority::getAuthority)
                 .containsExactly(Role.USER.getAuthority());
 
         verify(memberRepository).findByEmail(email);

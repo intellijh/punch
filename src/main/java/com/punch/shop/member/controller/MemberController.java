@@ -10,8 +10,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import com.punch.shop.member.model.MemberPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -65,8 +65,8 @@ public class MemberController {
     }
 
     @GetMapping("/profile")
-    public String profileForm(@AuthenticationPrincipal UserDetails currentUser, Model model) {
-        MemberProfileResponse profile = memberService.getProfile(currentUser.getUsername());
+    public String profileForm(@AuthenticationPrincipal MemberPrincipal principal, Model model) {
+        MemberProfileResponse profile = memberService.getProfile(principal.getUsername());
         model.addAttribute("profile", profile);
         model.addAttribute("memberProfileUpdateRequest", MemberProfileUpdateRequest.builder()
                 .name(profile.getName())
@@ -76,17 +76,17 @@ public class MemberController {
     }
 
     @PostMapping("/profile")
-    public String updateProfile(@AuthenticationPrincipal UserDetails currentUser,
+    public String updateProfile(@AuthenticationPrincipal MemberPrincipal principal,
                                 @Valid @ModelAttribute MemberProfileUpdateRequest request,
                                 BindingResult bindingResult,
                                 Model model,
                                 RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("profile", memberService.getProfile(currentUser.getUsername()));
+            model.addAttribute("profile", memberService.getProfile(principal.getUsername()));
             return "member/profile";
         }
 
-        memberService.updateProfile(currentUser.getUsername(), request);
+        memberService.updateProfile(principal.getUsername(), request);
         redirectAttributes.addFlashAttribute("message", "프로필이 수정되었습니다.");
         return "redirect:/member/profile";
     }
