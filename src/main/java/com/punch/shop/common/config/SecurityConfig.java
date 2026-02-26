@@ -25,7 +25,7 @@ public class SecurityConfig {
 
     private static final String LOGIN_PAGE_URL = "/member/login";
     private static final String LOGIN_PROCESSING_URL = "/member/login";
-    private static final String LOGIN_FAILURE_URL = "/member/login?error=true";
+    private static final String LOGIN_PAGE_WITH_ERROR_URL = "/member/login?error";
     private static final String LOGOUT_URL = "/member/logout";
     private static final String DEFAULT_SUCCESS_URL = "/";
 
@@ -40,7 +40,13 @@ public class SecurityConfig {
                         .loginPage(LOGIN_PAGE_URL)
                         .loginProcessingUrl(LOGIN_PROCESSING_URL)
                         .defaultSuccessUrl(DEFAULT_SUCCESS_URL, false)
-                        .failureUrl(LOGIN_FAILURE_URL)
+                        .failureHandler((request, response, exception) -> {
+                            String username = request.getParameter("username");
+                            if (username != null && !username.isBlank()) {
+                                request.getSession().setAttribute("LAST_LOGIN_USERNAME", username);
+                            }
+                            response.sendRedirect("/member/login?error");
+                        })
                         .permitAll()
                 )
                 .logout(logout -> logout

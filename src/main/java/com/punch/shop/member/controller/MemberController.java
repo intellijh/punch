@@ -6,6 +6,7 @@ import com.punch.shop.member.dto.MemberRegisterRequest;
 import com.punch.shop.member.dto.MemberRegisterResponse;
 import com.punch.shop.member.exception.DuplicateEmailException;
 import com.punch.shop.member.service.MemberService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,12 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/login")
-    public String loginForm() {
+    public String loginForm(HttpSession session, Model model) {
+        String lastUsername = (String) session.getAttribute("LAST_LOGIN_USERNAME");
+        if (lastUsername != null) {
+            model.addAttribute("lastUsername", lastUsername);
+            session.removeAttribute("LAST_LOGIN_USERNAME");
+        }
         return "member/login";
     }
 
