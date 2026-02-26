@@ -1,5 +1,7 @@
 package com.punch.shop.member.controller;
 
+import com.punch.shop.member.dto.MemberProfileResponse;
+import com.punch.shop.member.dto.MemberProfileUpdateRequest;
 import com.punch.shop.member.dto.MemberRegisterRequest;
 import com.punch.shop.member.dto.MemberRegisterResponse;
 import com.punch.shop.member.exception.DuplicateEmailException;
@@ -7,6 +9,8 @@ import com.punch.shop.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -52,5 +56,32 @@ public class MemberController {
             bindingResult.rejectValue("email", "duplicate", e.getMessage());
             return "member/register";
         }
+    }
+
+    @GetMapping("/profile")
+    public String profileForm(@AuthenticationPrincipal UserDetails currentUser, Model model) {
+        MemberProfileResponse profile = memberService.getProfile(currentUser.getUsername());
+        model.addAttribute("profile", profile);
+        model.addAttribute("memberProfileUpdateRequest", MemberProfileUpdateRequest.builder()
+                .name(profile.getName())
+                .phone(profile.getPhone())
+                .build());
+        return "member/profile";
+    }
+
+    @PostMapping("/profile")
+    public String updateProfile(@AuthenticationPrincipal UserDetails currentUser,
+                                @Valid @ModelAttribute MemberProfileUpdateRequest request,
+                                BindingResult bindingResult,
+                                Model model,
+                                RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("profile", memberService.getProfile(currentUser.getUsername()));
+            return "member/profile";
+        }
+
+        memberService.updateProfile(currentUser.getUsername(), request);
+        redirectAttributes.addFlashAttribute("message", "프로필이 수정되었습니다.");
+        return "redirect:/member/profile";
     }
 }

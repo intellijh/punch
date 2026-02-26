@@ -1,8 +1,11 @@
 package com.punch.shop.member.service;
 
+import com.punch.shop.member.dto.MemberProfileResponse;
+import com.punch.shop.member.dto.MemberProfileUpdateRequest;
 import com.punch.shop.member.dto.MemberRegisterRequest;
 import com.punch.shop.member.dto.MemberRegisterResponse;
 import com.punch.shop.member.exception.DuplicateEmailException;
+import com.punch.shop.member.exception.MemberNotFoundException;
 import com.punch.shop.member.model.Member;
 import com.punch.shop.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberService {
 
@@ -27,11 +31,25 @@ public class MemberService {
                 request.getEmail(),
                 passwordEncoder.encode(request.getPassword()),
                 request.getName(),
-                request.getPhoneWithoutHyphen()
+                request.getPhone()
         );
 
         Member savedMember = memberRepository.save(member);
 
         return MemberRegisterResponse.from(savedMember);
+    }
+
+    public MemberProfileResponse getProfile(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException(email));
+        return MemberProfileResponse.from(member);
+    }
+
+    @Transactional
+    public MemberProfileResponse updateProfile(String email, MemberProfileUpdateRequest request) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new MemberNotFoundException(email));
+        member.updateProfile(request.getName(), request.getPhone());
+        return MemberProfileResponse.from(member);
     }
 }

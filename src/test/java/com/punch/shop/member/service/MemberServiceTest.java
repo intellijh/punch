@@ -1,8 +1,11 @@
 package com.punch.shop.member.service;
 
+import com.punch.shop.member.dto.MemberProfileResponse;
+import com.punch.shop.member.dto.MemberProfileUpdateRequest;
 import com.punch.shop.member.dto.MemberRegisterRequest;
 import com.punch.shop.member.dto.MemberRegisterResponse;
 import com.punch.shop.member.exception.DuplicateEmailException;
+import com.punch.shop.member.exception.MemberNotFoundException;
 import com.punch.shop.member.model.Member;
 import com.punch.shop.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,7 +55,7 @@ class MemberServiceTest {
                 .email(request.getEmail())
                 .password("encodedPassword")
                 .name(request.getName())
-                .phone(request.getPhone())
+                .phone("01012345678")
                 .build()
             );
 
@@ -86,5 +89,83 @@ class MemberServiceTest {
         verify(memberRepository).existsByEmail(request.getEmail());
         verify(passwordEncoder, never()).encode(anyString());
         verify(memberRepository, never()).save(any(Member.class));
+    }
+
+    @Test
+    @DisplayName("프로필 조회 성공")
+    void getProfileSuccess() {
+        String email = "test@example.com";
+        Member member = Member.builder()
+                .email(email)
+                .password("encodedPassword")
+                .name("홍길동")
+                .phone("01012345678")
+                .build();
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+
+        MemberProfileResponse response = memberService.getProfile(email);
+
+        assertThat(response.getEmail()).isEqualTo(email);
+        assertThat(response.getName()).isEqualTo("홍길동");
+        assertThat(response.getPhone()).isEqualTo("010-1234-5678");
+
+        verify(memberRepository).findByEmail(email);
+    }
+
+    @Test
+    @DisplayName("프로필 조회 실패 - 존재하지 않는 이메일이면 MemberNotFoundException 발생")
+    void getProfileNotFound() {
+        String email = "notfound@example.com";
+        given(memberRepository.findByEmail(email)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> memberService.getProfile(email))
+                .isInstanceOf(MemberNotFoundException.class)
+                .hasMessageContaining(email);
+
+        verify(memberRepository).findByEmail(email);
+    }
+
+    @Test
+    @DisplayName("프로필 수정 성공")
+    void updateProfileSuccess() {
+        String email = "test@example.com";
+        Member member = Member.builder()
+                .email(email)
+                .password("encodedPassword")
+                .name("홍길동")
+                .phone("01012345678")
+                .build();
+        MemberProfileUpdateRequest request = MemberProfileUpdateRequest.builder()
+                .name("김철수")
+                .phone("010-9876-5432")
+                .build();
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+
+        MemberProfileResponse response = memberService.updateProfile(email, request);
+
+        assertThat(response.getName()).isEqualTo("김철수");
+        assertThat(response.getPhone()).isEqualTo("010-9876-5432");
+
+        verify(memberRepository).findByEmail(email);
+    }
+
+    @Test
+    @DisplayName("프로필 수정 실패 - 존재하지 않는 이메일이면 MemberNotFoundException 발생")
+    void updateProfileNotFound() {
+        String email = "notfound@example.com";
+        MemberProfileUpdateRequest request = MemberProfileUpdateRequest.builder()
+                .name("김철수")
+                .phone("010-9876-5432")
+                .build();
+
+        given(memberRepository.findByEmail(email)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> memberService.updateProfile(email, request))
+                .isInstanceOf(MemberNotFoundException.class)
+                .hasMessageContaining(email);
+
+        verify(memberRepository).findByEmail(email);
     }
 }
