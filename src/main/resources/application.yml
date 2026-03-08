@@ -2,17 +2,20 @@ spring:
   application:
     name: PunchShop
 
-  # Database Configuration
+  # Active Profile (default: dev)
+  profiles:
+    active: ${SPRING_PROFILE:dev}
+
+  # Database Configuration (common)
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:punch_db}?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:password}
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
-  # JPA Configuration
+  # JPA Configuration (common)
   jpa:
     hibernate:
-      ddl-auto: ${DDL_AUTO:update}
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
@@ -41,17 +44,3 @@ server:
       charset: UTF-8
       enabled: true
       force: true
-
-# Logging Configuration
-logging:
-  level:
-    root: INFO
-    com.punch.shop: DEBUG
-
-# P6Spy Configuration
-decorator:
-  datasource:
-    p6spy:
-      enable-logging: true
-      multiline: true
-      logging: slf4j

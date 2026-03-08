@@ -9,6 +9,9 @@
 
     <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Punch</title>
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
+
     <!-- Tailwind CSS -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
@@ -28,6 +31,9 @@
 
     <!-- Footer -->
     <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Common JavaScript -->
+    <script th:src="@{/js/script.js}"></script>
 
     <!-- Additional JavaScript -->
     <th:block layout:fragment="extra-js"></th:block>

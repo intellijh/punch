@@ -50,8 +50,6 @@ Desktop.ini
 *.rar
 
 # Application
-application-local.yml
-application-prod.yml
 !gradle-wrapper.jar
 
 # Environment variables

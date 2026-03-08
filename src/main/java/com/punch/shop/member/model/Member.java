@@ -1,0 +1,60 @@
+package com.punch.shop.member.model;
+
+import com.punch.shop.common.model.BaseEntity;
+import com.punch.shop.common.util.PhoneUtils;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "member")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+public class Member extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
+    private Long id;
+
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, length = 11)
+    private String phone;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Role role = Role.USER;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private MemberStatus status = MemberStatus.ACTIVE;
+
+    public void updateProfile(String name, String phone) {
+        this.name = name;
+        this.phone = PhoneUtils.validateAndNormalize(phone);
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public static Member create(String email, String encodedPassword, String name, String phone) {
+        return Member.builder()
+                .email(email)
+                .password(encodedPassword)
+                .name(name)
+                .phone(PhoneUtils.validateAndNormalize(phone))
+                .build();
+    }
+}

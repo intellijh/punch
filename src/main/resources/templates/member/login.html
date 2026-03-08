@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>로그인</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-md mx-auto bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">로그인</h1>
+
+            <!-- 오류 메시지 -->
+            <div th:if="${param.error}" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                이메일 또는 비밀번호가 올바르지 않습니다.
+            </div>
+
+            <!-- 성공 메시지 (회원가입 후 redirect) -->
+            <div th:if="${message}" th:text="${message}"
+                 class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
+            </div>
+
+            <form th:action="@{/member/login}" method="post" class="space-y-4">
+                <!-- 이메일 -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                    <input type="email"
+                           id="username"
+                           name="username"
+                           th:value="${lastUsername}"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="example@email.com"
+                           th:autofocus="${param.error == null}"
+                           required>
+                </div>
+
+                <!-- 비밀번호 -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           placeholder="비밀번호를 입력해주세요"
+                           th:autofocus="${param.error != null}"
+                           required>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="pt-4">
+                    <button type="submit"
+                            class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        로그인
+                    </button>
+                </div>
+
+                <!-- 회원가입 링크 -->
+                <div class="text-center mt-4">
+                    <p class="text-sm text-gray-600">
+                        아직 계정이 없으신가요?
+                        <a th:href="@{/member/register}" class="text-blue-600 hover:text-blue-700 font-medium">
+                            회원가입
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

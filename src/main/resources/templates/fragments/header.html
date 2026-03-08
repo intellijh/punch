@@ -42,19 +42,19 @@
 
                 <!-- User Menu -->
                 <div sec:authorize="isAuthenticated()" class="flex items-center space-x-4">
-                    <a th:href="@{/user/profile}" class="text-gray-700 hover:text-blue-600">
+                    <a th:href="@{/member/profile}" class="text-gray-700 hover:text-blue-600">
                         <span sec:authentication="name">사용자</span>님
                     </a>
                     <a th:href="@{/orders}" class="text-gray-700 hover:text-blue-600">주문내역</a>
-                    <form th:action="@{/logout}" method="post" class="inline">
+                    <form th:action="@{/member/logout}" method="post" class="inline">
                         <button type="submit" class="text-gray-700 hover:text-blue-600">로그아웃</button>
                     </form>
                 </div>
 
                 <!-- Login/Register -->
-                <div sec:authorize="!isAuthenticated()" class="flex items-center space-x-4">
-                    <a th:href="@{/user/login}" class="text-gray-700 hover:text-blue-600">로그인</a>
-                    <a th:href="@{/user/register}"
+                <div sec:authorize="isAnonymous()" class="flex items-center space-x-4">
+                    <a th:href="@{/member/login}" class="text-gray-700 hover:text-blue-600">로그인</a>
+                    <a th:href="@{/member/register}"
                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                         회원가입
                     </a>
