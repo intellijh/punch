@@ -3,6 +3,7 @@ package com.punch.shop.member.repository;
 import com.punch.shop.common.config.JpaAuditingConfig;
 import com.punch.shop.member.model.Address;
 import com.punch.shop.member.model.Member;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class AddressRepositoryTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private EntityManager em;
+
     private Member member;
 
     @BeforeEach
@@ -36,6 +40,11 @@ class AddressRepositoryTest {
     private Address createAddress(String label, boolean isDefault) {
         return Address.create(member, "홍길동", "01012345678", "12345",
                 "서울시 강남구 테헤란로 123", null, label, isDefault);
+    }
+
+    private void flushAndClear() {
+        em.flush();
+        em.clear();
     }
 
     @Test
@@ -54,6 +63,7 @@ class AddressRepositoryTest {
     void findByMemberId() {
         addressRepository.save(createAddress("회사", false));
         addressRepository.save(createAddress("집", true));
+        flushAndClear();
 
         List<Address> result = addressRepository.findByMemberIdOrderByDefaultAddressDesc(member.getId());
 
@@ -73,6 +83,7 @@ class AddressRepositoryTest {
                 Member.create("other@example.com", "encodedPassword", "김철수", "010-9876-5432"));
         addressRepository.save(Address.create(other, "김철수", "01098765432", "54321",
                 "서울시 마포구 상암로 1", null, "부모님댁", true));
+        flushAndClear();
 
         List<Address> memberResult = addressRepository.findByMemberIdOrderByDefaultAddressDesc(member.getId());
         List<Address> otherResult = addressRepository.findByMemberIdOrderByDefaultAddressDesc(other.getId());
@@ -90,6 +101,7 @@ class AddressRepositoryTest {
     @DisplayName("배송지 ID와 회원 ID로 단건 조회 성공")
     void findByIdAndMemberId() {
         Address saved = addressRepository.save(createAddress("집", true));
+        flushAndClear();
 
         Optional<Address> result = addressRepository.findByIdAndMemberId(saved.getId(), member.getId());
 
@@ -104,6 +116,7 @@ class AddressRepositoryTest {
 
         Member other = memberRepository.save(
                 Member.create("other@example.com", "encodedPassword", "김철수", "010-9876-5432"));
+        flushAndClear();
 
         Optional<Address> result = addressRepository.findByIdAndMemberId(saved.getId(), other.getId());
 
@@ -115,6 +128,7 @@ class AddressRepositoryTest {
     void countByMemberId() {
         addressRepository.save(createAddress("집", true));
         addressRepository.save(createAddress("회사", false));
+        flushAndClear();
 
         long count = addressRepository.countByMemberId(member.getId());
 
@@ -126,6 +140,7 @@ class AddressRepositoryTest {
     void findByMemberIdAndDefaultAddressTrue() {
         addressRepository.save(createAddress("집", true));
         addressRepository.save(createAddress("회사", false));
+        flushAndClear();
 
         Optional<Address> result = addressRepository.findByMemberIdAndDefaultAddressTrue(member.getId());
 
