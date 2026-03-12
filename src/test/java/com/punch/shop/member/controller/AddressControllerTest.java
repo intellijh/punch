@@ -1,6 +1,8 @@
 package com.punch.shop.member.controller;
 
+import com.punch.shop.member.dto.AddressCreateRequest;
 import com.punch.shop.member.dto.AddressResponse;
+import com.punch.shop.member.dto.AddressUpdateRequest;
 import com.punch.shop.member.exception.AddressNotFoundException;
 import com.punch.shop.member.model.MemberPrincipal;
 import com.punch.shop.member.service.AddressService;
@@ -74,7 +76,7 @@ class AddressControllerTest {
     @Test
     @DisplayName("배송지 추가 성공")
     void addSuccess() throws Exception {
-        given(addressService.addAddress(eq(1L), any())).willReturn(addressResponse);
+        given(addressService.addAddress(eq(1L), any(AddressCreateRequest.class))).willReturn(addressResponse);
 
         mockMvc.perform(post("/member/address/new").with(user(principal)).with(csrf())
                         .param("label", "집")
@@ -119,13 +121,13 @@ class AddressControllerTest {
         given(addressService.getAddress(1L, 99L)).willThrow(new AddressNotFoundException(99L));
 
         mockMvc.perform(get("/member/address/99/edit").with(user(principal)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @DisplayName("배송지 수정 성공")
     void editSuccess() throws Exception {
-        given(addressService.updateAddress(eq(1L), eq(1L), any())).willReturn(addressResponse);
+        given(addressService.updateAddress(eq(1L), eq(1L), any(AddressUpdateRequest.class))).willReturn(addressResponse);
 
         mockMvc.perform(post("/member/address/1/edit").with(user(principal)).with(csrf())
                         .param("label", "집")
@@ -157,7 +159,7 @@ class AddressControllerTest {
     @Test
     @DisplayName("배송지 수정 실패 - 존재하지 않는 배송지")
     void editNotFound() throws Exception {
-        willThrow(new AddressNotFoundException(99L)).given(addressService).updateAddress(eq(1L), eq(99L), any());
+        willThrow(new AddressNotFoundException(99L)).given(addressService).updateAddress(eq(1L), eq(99L), any(AddressUpdateRequest.class));
 
         mockMvc.perform(post("/member/address/99/edit").with(user(principal)).with(csrf())
                         .param("label", "집")
@@ -165,7 +167,7 @@ class AddressControllerTest {
                         .param("phone", "010-1234-5678")
                         .param("zipCode", "12345")
                         .param("address", "서울시 강남구 테헤란로 123"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -185,7 +187,7 @@ class AddressControllerTest {
         willThrow(new AddressNotFoundException(99L)).given(addressService).deleteAddress(1L, 99L);
 
         mockMvc.perform(post("/member/address/99/delete").with(user(principal)).with(csrf()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test

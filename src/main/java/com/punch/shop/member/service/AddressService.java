@@ -27,7 +27,7 @@ public class AddressService {
     private final MemberRepository memberRepository;
 
     public List<AddressResponse> getAddresses(Long memberId) {
-        return addressRepository.findByMemberId(memberId).stream()
+        return addressRepository.findByMemberIdOrderByDefaultAddressDesc(memberId).stream()
                 .map(AddressResponse::from)
                 .toList();
     }
