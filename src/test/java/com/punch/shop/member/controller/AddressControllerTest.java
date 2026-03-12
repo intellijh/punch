@@ -121,7 +121,7 @@ class AddressControllerTest {
         given(addressService.getAddress(1L, 99L)).willThrow(new AddressNotFoundException(99L));
 
         mockMvc.perform(get("/member/address/99/edit").with(user(principal)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -167,7 +167,7 @@ class AddressControllerTest {
                         .param("phone", "010-1234-5678")
                         .param("zipCode", "12345")
                         .param("address", "서울시 강남구 테헤란로 123"))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -187,7 +187,7 @@ class AddressControllerTest {
         willThrow(new AddressNotFoundException(99L)).given(addressService).deleteAddress(1L, 99L);
 
         mockMvc.perform(post("/member/address/99/delete").with(user(principal)).with(csrf()))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
