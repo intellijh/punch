@@ -1,6 +1,8 @@
 package com.punch.shop.member.controller;
 
 import com.punch.shop.member.dto.MemberProfileResponse;
+import com.punch.shop.member.dto.MemberProfileUpdateRequest;
+import com.punch.shop.member.dto.MemberRegisterRequest;
 import com.punch.shop.member.dto.MemberRegisterResponse;
 import com.punch.shop.member.exception.DuplicateEmailException;
 import com.punch.shop.member.model.MemberPrincipal;
@@ -78,7 +80,7 @@ class MemberControllerTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(memberService.register(any())).willReturn(response);
+        given(memberService.register(any(MemberRegisterRequest.class))).willReturn(response);
 
         mockMvc.perform(post("/member/register").with(user(principal)).with(csrf())
                         .param("email", "test@example.com")
@@ -106,7 +108,7 @@ class MemberControllerTest {
     @Test
     @DisplayName("회원가입 실패 - 이메일 중복")
     void registerDuplicateEmail() throws Exception {
-        given(memberService.register(any())).willThrow(new DuplicateEmailException("이미 사용 중인 이메일입니다"));
+        given(memberService.register(any(MemberRegisterRequest.class))).willThrow(new DuplicateEmailException("이미 사용 중인 이메일입니다"));
 
         mockMvc.perform(post("/member/register").with(user(principal)).with(csrf())
                         .param("email", "test@example.com")
@@ -132,7 +134,7 @@ class MemberControllerTest {
     @Test
     @DisplayName("프로필 수정 성공")
     void updateProfileSuccess() throws Exception {
-        given(memberService.updateProfile(eq("test@example.com"), any())).willReturn(profileResponse);
+        given(memberService.updateProfile(eq("test@example.com"), any(MemberProfileUpdateRequest.class))).willReturn(profileResponse);
 
         mockMvc.perform(post("/member/profile").with(user(principal)).with(csrf())
                         .param("name", "김철수")
