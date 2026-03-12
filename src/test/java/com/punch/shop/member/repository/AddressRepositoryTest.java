@@ -50,16 +50,17 @@ class AddressRepositoryTest {
     }
 
     @Test
-    @DisplayName("회원 ID로 배송지 목록 조회 - 해당 회원의 배송지만 반환됨")
+    @DisplayName("회원 ID로 배송지 목록 조회 - 기본 배송지가 최상단에 위치")
     void findByMemberId() {
-        addressRepository.save(createAddress("집", true));
         addressRepository.save(createAddress("회사", false));
+        addressRepository.save(createAddress("집", true));
 
-        List<Address> result = addressRepository.findByMemberId(member.getId());
+        List<Address> result = addressRepository.findByMemberIdOrderByDefaultAddressDesc(member.getId());
 
         assertThat(result).hasSize(2);
-        assertThat(result).extracting(Address::getLabel)
-                .containsExactlyInAnyOrder("집", "회사");
+        assertThat(result.get(0).getLabel()).isEqualTo("집");
+        assertThat(result.get(0).isDefaultAddress()).isTrue();
+        assertThat(result.get(1).getLabel()).isEqualTo("회사");
     }
 
     @Test
@@ -73,8 +74,8 @@ class AddressRepositoryTest {
         addressRepository.save(Address.create(other, "김철수", "01098765432", "54321",
                 "서울시 마포구 상암로 1", null, "부모님댁", true));
 
-        List<Address> memberResult = addressRepository.findByMemberId(member.getId());
-        List<Address> otherResult = addressRepository.findByMemberId(other.getId());
+        List<Address> memberResult = addressRepository.findByMemberIdOrderByDefaultAddressDesc(member.getId());
+        List<Address> otherResult = addressRepository.findByMemberIdOrderByDefaultAddressDesc(other.getId());
 
         assertThat(memberResult).hasSize(2);
         assertThat(memberResult).extracting(Address::getLabel)

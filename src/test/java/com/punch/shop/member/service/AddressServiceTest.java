@@ -65,7 +65,7 @@ class AddressServiceTest {
     void getAddresses() {
         Member member = createMember();
         Address address = createAddress(member, "집", true);
-        given(addressRepository.findByMemberId(1L)).willReturn(List.of(address));
+        given(addressRepository.findByMemberIdOrderByDefaultAddressDesc(1L)).willReturn(List.of(address));
 
         List<AddressResponse> result = addressService.getAddresses(1L);
 
