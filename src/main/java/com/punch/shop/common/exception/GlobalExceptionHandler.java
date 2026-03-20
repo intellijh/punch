@@ -2,6 +2,7 @@ package com.punch.shop.common.exception;
 
 import com.punch.shop.member.exception.AddressNotFoundException;
 import com.punch.shop.member.exception.MemberNotFoundException;
+import com.punch.shop.product.exception.ProductNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
-    @ExceptionHandler({MemberNotFoundException.class, AddressNotFoundException.class})
+    @ExceptionHandler({MemberNotFoundException.class, AddressNotFoundException.class, ProductNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public String handleNotFoundEntity(RuntimeException ex, Model model, HttpServletRequest request) {
         log.warn("404 Not Found: {}", ex.getMessage());

@@ -40,9 +40,9 @@ public class MemberService {
     }
 
     public MemberProfileResponse getProfile(String email) {
-        Member member = memberRepository.findByEmail(email)
+        return memberRepository.findByEmail(email)
+                .map(MemberProfileResponse::from)
                 .orElseThrow(() -> new MemberNotFoundException(email));
-        return MemberProfileResponse.from(member);
     }
 
     @Transactional

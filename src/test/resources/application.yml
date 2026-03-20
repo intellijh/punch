@@ -2,6 +2,9 @@ spring:
   application:
     name: PunchShop-Test
 
+  profiles:
+    active: test
+
   # Banner Configuration
   main:
     banner-mode: off
