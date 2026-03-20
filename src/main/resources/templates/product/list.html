@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>상품 목록</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 py-8">
+
+        <!-- 헤더 영역 -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">전체 상품</h1>
+
+            <!-- 정렬 옵션 -->
+            <div class="flex items-center gap-2 text-sm">
+                <a th:href="@{/products(sort='newest', page=0)}"
+                   th:classappend="${sort == 'newest'} ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                   class="transition">최신순</a>
+                <span class="text-gray-300">|</span>
+                <a th:href="@{/products(sort='price_asc', page=0)}"
+                   th:classappend="${sort == 'price_asc'} ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                   class="transition">낮은 가격순</a>
+                <span class="text-gray-300">|</span>
+                <a th:href="@{/products(sort='price_desc', page=0)}"
+                   th:classappend="${sort == 'price_desc'} ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                   class="transition">높은 가격순</a>
+            </div>
+        </div>
+
+        <!-- 상품 그리드 -->
+        <div th:if="${products.hasContent()}"
+             class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <a th:each="product : ${products.content}"
+               th:href="@{/products/{id}(id=${product.id})}"
+               class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition overflow-hidden">
+                <!-- 썸네일 -->
+                <div class="aspect-square bg-gray-100">
+                    <img th:if="${product.thumbnailImageUrl}"
+                         th:src="${product.thumbnailImageUrl}"
+                         th:alt="${product.name}"
+                         class="w-full h-full object-cover">
+                    <div th:unless="${product.thumbnailImageUrl}"
+                         class="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                        이미지 없음
+                    </div>
+                </div>
+                <!-- 상품 정보 -->
+                <div class="p-3">
+                    <p th:text="${product.categoryName}"
+                       class="text-xs text-gray-400 mb-1 truncate"></p>
+                    <p th:text="${product.name}"
+                       class="text-sm text-gray-800 font-medium mb-2 line-clamp-2 leading-snug"></p>
+                    <p class="text-base font-bold text-gray-900">
+                        <span th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')}"></span>원
+                    </p>
+                </div>
+            </a>
+        </div>
+
+        <!-- 상품 없음 -->
+        <div th:unless="${products.hasContent()}"
+             class="text-center py-24 text-gray-400">
+            <p class="text-lg">등록된 상품이 없습니다.</p>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div th:if="${products.hasContent()}"
+             th:with="blockStart=${(products.number / 10) * 10},
+                      blockEnd=${T(java.lang.Math).min(blockStart + 9, products.totalPages - 1)}"
+             class="flex justify-center items-center gap-1 mt-10">
+
+            <a th:if="${blockStart > 0}"
+               th:href="@{/products(page=${blockStart - 1}, sort=${sort})}"
+               class="px-3 py-2 rounded border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition">
+                &laquo;
+            </a>
+
+            <a th:each="i : ${#numbers.sequence(blockStart, blockEnd)}"
+               th:href="@{/products(page=${i}, sort=${sort})}"
+               th:text="${i + 1}"
+               th:classappend="${i == products.number} ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-600 border-gray-300 hover:bg-gray-50'"
+               class="px-3 py-2 rounded border text-sm transition">
+            </a>
+
+            <a th:if="${blockEnd < products.totalPages - 1}"
+               th:href="@{/products(page=${blockEnd + 1}, sort=${sort})}"
+               class="px-3 py-2 rounded border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition">
+                &raquo;
+            </a>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

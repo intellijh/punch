@@ -18,6 +18,8 @@ public class SecurityConfig {
             "/",
             "/member/register",
             "/member/login",
+            "/products",
+            "/products/**",
             "/css/**",
             "/js/**",
             "/images/**",
@@ -46,7 +48,7 @@ public class SecurityConfig {
                             if (username != null && !username.isBlank()) {
                                 request.getSession().setAttribute("LAST_LOGIN_USERNAME", username);
                             }
-                            response.sendRedirect("/member/login?error");
+                            response.sendRedirect(LOGIN_PAGE_WITH_ERROR_URL);
                         })
                         .permitAll()
                 )
