@@ -33,9 +33,9 @@ public class AddressService {
     }
 
     public AddressResponse getAddress(Long memberId, Long addressId) {
-        Address address = addressRepository.findByIdAndMemberId(addressId, memberId)
+        return addressRepository.findByIdAndMemberId(addressId, memberId)
+                .map(AddressResponse::from)
                 .orElseThrow(() -> new AddressNotFoundException(addressId));
-        return AddressResponse.from(address);
     }
 
     @Transactional
