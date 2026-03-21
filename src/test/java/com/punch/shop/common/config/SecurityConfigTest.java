@@ -47,6 +47,13 @@ class SecurityConfigTest {
     }
 
     @Test
+    @DisplayName("/error는 인증 없이 접근 가능 (로그인 페이지로 redirect 없음)")
+    void errorUrlAccessWithoutAuth() throws Exception {
+        mockMvc.perform(get("/error"))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @Test
     @DisplayName("Protected URL은 인증 없이 접근 시 로그인 페이지로 redirect")
     void protectedUrlRedirectToLogin() throws Exception {
         mockMvc.perform(get("/member/profile"))
