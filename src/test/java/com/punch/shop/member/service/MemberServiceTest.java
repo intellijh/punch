@@ -65,7 +65,6 @@ class MemberServiceTest {
         assertThat(response.getEmail()).isEqualTo(request.getEmail());
         assertThat(response.getName()).isEqualTo(request.getName());
 
-        verify(memberRepository).existsByEmail(request.getEmail());
         verify(passwordEncoder).encode(request.getPassword());
         verify(memberRepository).save(any(Member.class));
     }
@@ -86,7 +85,6 @@ class MemberServiceTest {
                 .isInstanceOf(DuplicateEmailException.class)
                 .hasMessage("이미 사용 중인 이메일입니다");
 
-        verify(memberRepository).existsByEmail(request.getEmail());
         verify(passwordEncoder, never()).encode(anyString());
         verify(memberRepository, never()).save(any(Member.class));
     }
@@ -109,8 +107,6 @@ class MemberServiceTest {
         assertThat(response.getEmail()).isEqualTo(email);
         assertThat(response.getName()).isEqualTo("홍길동");
         assertThat(response.getPhone()).isEqualTo("010-1234-5678");
-
-        verify(memberRepository).findByEmail(email);
     }
 
     @Test
@@ -122,8 +118,6 @@ class MemberServiceTest {
         assertThatThrownBy(() -> memberService.getProfile(email))
                 .isInstanceOf(MemberNotFoundException.class)
                 .hasMessageContaining(email);
-
-        verify(memberRepository).findByEmail(email);
     }
 
     @Test
@@ -147,8 +141,6 @@ class MemberServiceTest {
 
         assertThat(response.getName()).isEqualTo("김철수");
         assertThat(response.getPhone()).isEqualTo("010-9876-5432");
-
-        verify(memberRepository).findByEmail(email);
     }
 
     @Test
@@ -165,7 +157,5 @@ class MemberServiceTest {
         assertThatThrownBy(() -> memberService.updateProfile(email, request))
                 .isInstanceOf(MemberNotFoundException.class)
                 .hasMessageContaining(email);
-
-        verify(memberRepository).findByEmail(email);
     }
 }

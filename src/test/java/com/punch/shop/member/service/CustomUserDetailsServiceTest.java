@@ -20,7 +20,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailsServiceTest {
@@ -55,8 +54,6 @@ class CustomUserDetailsServiceTest {
         assertThat(principal.getAuthorities())
                 .extracting(GrantedAuthority::getAuthority)
                 .containsExactly(Role.USER.getAuthority());
-
-        verify(memberRepository).findByEmail(email);
     }
 
     @Test
@@ -68,7 +65,5 @@ class CustomUserDetailsServiceTest {
         assertThatThrownBy(() -> customUserDetailsService.loadUserByUsername(email))
                 .isInstanceOf(UsernameNotFoundException.class)
                 .hasMessageContaining(email);
-
-        verify(memberRepository).findByEmail(email);
     }
 }
