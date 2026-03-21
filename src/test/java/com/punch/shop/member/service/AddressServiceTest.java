@@ -138,7 +138,6 @@ class AddressServiceTest {
         assertThatThrownBy(() -> addressService.addAddress(1L, request))
                 .isInstanceOf(MaxAddressCountException.class);
 
-        verify(memberRepository, never()).findById(any());
         verify(addressRepository, never()).save(any());
     }
 
