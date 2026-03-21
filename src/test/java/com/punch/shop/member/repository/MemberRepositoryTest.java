@@ -1,6 +1,6 @@
 package com.punch.shop.member.repository;
 
-import com.punch.shop.common.config.JpaAuditingConfig;
+import com.punch.shop.common.annotation.RepositoryTest;
 import com.punch.shop.member.model.Member;
 import com.punch.shop.member.model.MemberStatus;
 import com.punch.shop.member.model.Role;
@@ -8,15 +8,12 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
-@Import(JpaAuditingConfig.class)
+@RepositoryTest
 class MemberRepositoryTest {
 
     @Autowired

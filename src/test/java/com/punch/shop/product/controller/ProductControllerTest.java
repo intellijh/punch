@@ -45,28 +45,60 @@ class ProductControllerTest {
     @Test
     @DisplayName("상품 목록 페이지 요청")
     void list() throws Exception {
-        given(productService.getProducts(any(Pageable.class)))
+        given(productService.searchProducts(any(), any(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of(
                         createProductResponse(1L, "상품A", BigDecimal.valueOf(10000)),
                         createProductResponse(2L, "상품B", BigDecimal.valueOf(20000))
                 )));
+        given(productService.getCategories()).willReturn(List.of());
 
         mockMvc.perform(get("/products"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("product/list"))
-                .andExpect(model().attributeExists("products", "sort"));
+                .andExpect(model().attributeExists("products", "sort", "categories"));
     }
 
     @Test
     @DisplayName("상품 목록 - 정렬 파라미터 전달")
     void listWithSort() throws Exception {
-        given(productService.getProducts(any(Pageable.class)))
+        given(productService.searchProducts(any(), any(), any(Pageable.class)))
                 .willReturn(new PageImpl<>(List.of()));
+        given(productService.getCategories()).willReturn(List.of());
 
         mockMvc.perform(get("/products").param("sort", "price_asc"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("product/list"))
                 .andExpect(model().attribute("sort", "price_asc"));
+    }
+
+    @Test
+    @DisplayName("상품 목록 - 키워드 검색")
+    void listWithKeyword() throws Exception {
+        given(productService.searchProducts(any(), any(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(
+                        createProductResponse(1L, "삼성 TV", BigDecimal.valueOf(500000))
+                )));
+        given(productService.getCategories()).willReturn(List.of());
+
+        mockMvc.perform(get("/products").param("keyword", "삼성"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("product/list"))
+                .andExpect(model().attribute("keyword", "삼성"));
+    }
+
+    @Test
+    @DisplayName("상품 목록 - 카테고리 필터링")
+    void listWithCategoryId() throws Exception {
+        given(productService.searchProducts(any(), any(), any(Pageable.class)))
+                .willReturn(new PageImpl<>(List.of(
+                        createProductResponse(1L, "상품A", BigDecimal.valueOf(10000))
+                )));
+        given(productService.getCategories()).willReturn(List.of());
+
+        mockMvc.perform(get("/products").param("categoryId", "1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("product/list"))
+                .andExpect(model().attribute("categoryId", 1L));
     }
 
     @Test
