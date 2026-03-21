@@ -29,11 +29,16 @@ public class ProductController {
     @GetMapping
     public String list(@RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "newest") String sort,
+                       @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) Long categoryId,
                        Model model) {
         Pageable pageable = PageRequest.of(Math.max(0, page), DEFAULT_PAGE_SIZE, toSort(sort));
-        Page<ProductResponse> products = productService.getProducts(pageable);
+        Page<ProductResponse> products = productService.searchProducts(keyword, categoryId, pageable);
         model.addAttribute("products", products);
         model.addAttribute("sort", sort);
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("categoryId", categoryId);
+        model.addAttribute("categories", productService.getCategories());
         return "product/list";
     }
 

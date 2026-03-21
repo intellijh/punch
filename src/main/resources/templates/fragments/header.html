@@ -14,7 +14,7 @@
 
             <!-- Search Bar -->
             <div class="flex-1 mx-8">
-                <form th:action="@{/products/search}" method="get" class="relative">
+                <form th:action="@{/products}" method="get" class="relative">
                     <input type="text"
                            name="keyword"
                            placeholder="상품을 검색하세요"
@@ -60,18 +60,6 @@
                     </a>
                 </div>
             </div>
-        </div>
-
-        <!-- Category Menu -->
-        <div class="mt-4 pt-4 border-t border-gray-200">
-            <ul class="flex space-x-8 text-sm">
-                <li><a th:href="@{/products}" class="text-gray-700 hover:text-blue-600">전체상품</a></li>
-                <li><a th:href="@{/products?category=electronics}" class="text-gray-700 hover:text-blue-600">가전제품</a></li>
-                <li><a th:href="@{/products?category=fashion}" class="text-gray-700 hover:text-blue-600">패션</a></li>
-                <li><a th:href="@{/products?category=food}" class="text-gray-700 hover:text-blue-600">식품</a></li>
-                <li><a th:href="@{/products?category=beauty}" class="text-gray-700 hover:text-blue-600">뷰티</a></li>
-                <li><a th:href="@{/products?category=sports}" class="text-gray-700 hover:text-blue-600">스포츠</a></li>
-            </ul>
         </div>
     </nav>
 </header>

@@ -9,21 +9,37 @@
 <div layout:fragment="content">
     <div class="container mx-auto px-4 py-8">
 
+        <!-- 카테고리 필터 -->
+        <div th:if="${not #lists.isEmpty(categories)}" class="mt-4 pt-4 border-t border-gray-200 mb-6">
+            <ul class="flex space-x-8 text-sm">
+                <li>
+                    <a th:href="@{/products(sort=${sort}, keyword=${keyword}, page=0)}"
+                       th:classappend="${categoryId == null} ? 'font-semibold text-blue-600' : 'text-gray-700 hover:text-blue-600'">전체상품</a>
+                </li>
+                <li th:each="cat : ${categories}">
+                    <a th:href="@{/products(sort=${sort}, keyword=${keyword}, categoryId=${cat.id}, page=0)}"
+                       th:text="${cat.name}"
+                       th:classappend="${categoryId == cat.id} ? 'font-semibold text-blue-600' : 'text-gray-700 hover:text-blue-600'">
+                    </a>
+                </li>
+            </ul>
+        </div>
+
         <!-- 헤더 영역 -->
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-gray-800">전체 상품</h1>
 
             <!-- 정렬 옵션 -->
             <div class="flex items-center gap-2 text-sm">
-                <a th:href="@{/products(sort='newest', page=0)}"
+                <a th:href="@{/products(sort='newest', keyword=${keyword}, categoryId=${categoryId}, page=0)}"
                    th:classappend="${sort == 'newest'} ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
                    class="transition">최신순</a>
                 <span class="text-gray-300">|</span>
-                <a th:href="@{/products(sort='price_asc', page=0)}"
+                <a th:href="@{/products(sort='price_asc', keyword=${keyword}, categoryId=${categoryId}, page=0)}"
                    th:classappend="${sort == 'price_asc'} ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
                    class="transition">낮은 가격순</a>
                 <span class="text-gray-300">|</span>
-                <a th:href="@{/products(sort='price_desc', page=0)}"
+                <a th:href="@{/products(sort='price_desc', keyword=${keyword}, categoryId=${categoryId}, page=0)}"
                    th:classappend="${sort == 'price_desc'} ? 'text-blue-600 font-semibold' : 'text-gray-500 hover:text-gray-700'"
                    class="transition">높은 가격순</a>
             </div>
@@ -72,20 +88,20 @@
              class="flex justify-center items-center gap-1 mt-10">
 
             <a th:if="${blockStart > 0}"
-               th:href="@{/products(page=${blockStart - 1}, sort=${sort})}"
+               th:href="@{/products(page=${blockStart - 1}, sort=${sort}, keyword=${keyword}, categoryId=${categoryId})}"
                class="px-3 py-2 rounded border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition">
                 &laquo;
             </a>
 
             <a th:each="i : ${#numbers.sequence(blockStart, blockEnd)}"
-               th:href="@{/products(page=${i}, sort=${sort})}"
+               th:href="@{/products(page=${i}, sort=${sort}, keyword=${keyword}, categoryId=${categoryId})}"
                th:text="${i + 1}"
                th:classappend="${i == products.number} ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-600 border-gray-300 hover:bg-gray-50'"
                class="px-3 py-2 rounded border text-sm transition">
             </a>
 
             <a th:if="${blockEnd < products.totalPages - 1}"
-               th:href="@{/products(page=${blockEnd + 1}, sort=${sort})}"
+               th:href="@{/products(page=${blockEnd + 1}, sort=${sort}, keyword=${keyword}, categoryId=${categoryId})}"
                class="px-3 py-2 rounded border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition">
                 &raquo;
             </a>
