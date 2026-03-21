@@ -4,6 +4,9 @@
       layout:decorate="~{layout/default}">
 <head>
     <title th:text="${status} + ' - 오류'">오류</title>
+    <th:block th:if="${status == 999}">
+        <meta http-equiv="refresh" th:content="'0;url=' + @{/}"/>
+    </th:block>
 </head>
 <body>
 <div layout:fragment="content">

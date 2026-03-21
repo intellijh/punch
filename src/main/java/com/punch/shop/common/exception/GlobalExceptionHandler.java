@@ -10,15 +10,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @ControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NoHandlerFoundException.class)
+    @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFound(NoHandlerFoundException ex, Model model, HttpServletRequest request) {
+    public String handleNotFound(NoResourceFoundException ex, Model model, HttpServletRequest request) {
         log.warn("404 Not Found: {}", request.getRequestURI());
         model.addAttribute("status", HttpStatus.NOT_FOUND.value());
         model.addAttribute("error", HttpStatus.NOT_FOUND.getReasonPhrase());
