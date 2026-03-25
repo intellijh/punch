@@ -57,11 +57,29 @@
 
                     <!-- 장바구니 버튼 -->
                     <div class="mt-auto pt-4">
-                        <button th:disabled="${product.stockQuantity <= 0}"
-                                th:classappend="${product.stockQuantity <= 0} ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'"
-                                class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold text-lg transition">
-                            장바구니 담기
-                        </button>
+                        <form th:if="${product.stockQuantity > 0}"
+                              th:action="@{/cart/items}" method="post">
+                            <input type="hidden" name="productId" th:value="${product.id}">
+                            <div class="flex items-center gap-3 mb-4">
+                                <label class="text-sm text-gray-600">수량</label>
+                                <input type="number" name="quantity" value="1"
+                                       min="1" th:max="${product.stockQuantity}"
+                                       class="w-20 text-center border border-gray-300 rounded px-2 py-2 text-sm">
+                                <span class="text-sm text-gray-400">
+                                    (최대 <span th:text="${product.stockQuantity}"></span>개)
+                                </span>
+                            </div>
+                            <button type="submit"
+                                    class="w-full bg-blue-600 text-white py-4 rounded-lg font-semibold text-lg transition hover:bg-blue-700">
+                                장바구니 담기
+                            </button>
+                        </form>
+                        <div th:unless="${product.stockQuantity > 0}">
+                            <button disabled
+                                    class="w-full bg-gray-400 text-white py-4 rounded-lg font-semibold text-lg cursor-not-allowed">
+                                품절
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
