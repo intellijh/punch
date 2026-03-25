@@ -58,13 +58,13 @@ public class Cart extends BaseEntity {
         items.removeIf(item -> item.getProduct().getId().equals(productId));
     }
 
-    public static Cart create(Member member) {
-        return Cart.builder().member(member).build();
-    }
-
     public BigDecimal getTotalPrice() {
         return items.stream()
                 .map(CartItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public static Cart create(Member member) {
+        return Cart.builder().member(member).build();
     }
 }
