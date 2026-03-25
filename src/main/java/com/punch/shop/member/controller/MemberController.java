@@ -66,7 +66,7 @@ public class MemberController {
 
     @GetMapping("/profile")
     public String profileForm(@AuthenticationPrincipal MemberPrincipal principal, Model model) {
-        MemberProfileResponse profile = memberService.getProfile(principal.getUsername());
+        MemberProfileResponse profile = memberService.getProfile(principal.getMemberId());
         model.addAttribute("profile", profile);
         model.addAttribute("memberProfileUpdateRequest", MemberProfileUpdateRequest.builder()
                 .name(profile.getName())
@@ -82,11 +82,11 @@ public class MemberController {
                                 Model model,
                                 RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("profile", memberService.getProfile(principal.getUsername()));
+            model.addAttribute("profile", memberService.getProfile(principal.getMemberId()));
             return "member/profile";
         }
 
-        memberService.updateProfile(principal.getUsername(), request);
+        memberService.updateProfile(principal.getMemberId(), request);
         redirectAttributes.addFlashAttribute("message", "프로필이 수정되었습니다.");
         return "redirect:/member/profile";
     }

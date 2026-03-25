@@ -92,40 +92,40 @@ class MemberServiceTest {
     @Test
     @DisplayName("프로필 조회 성공")
     void getProfileSuccess() {
-        String email = "test@example.com";
+        Long memberId = 1L;
         Member member = Member.builder()
-                .email(email)
+                .email("test@example.com")
                 .password("encodedPassword")
                 .name("홍길동")
                 .phone("01012345678")
                 .build();
 
-        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+        given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
 
-        MemberProfileResponse response = memberService.getProfile(email);
+        MemberProfileResponse response = memberService.getProfile(memberId);
 
-        assertThat(response.getEmail()).isEqualTo(email);
+        assertThat(response.getEmail()).isEqualTo("test@example.com");
         assertThat(response.getName()).isEqualTo("홍길동");
         assertThat(response.getPhone()).isEqualTo("010-1234-5678");
     }
 
     @Test
-    @DisplayName("프로필 조회 실패 - 존재하지 않는 이메일이면 MemberNotFoundException 발생")
+    @DisplayName("프로필 조회 실패 - 존재하지 않는 memberId이면 MemberNotFoundException 발생")
     void getProfileNotFound() {
-        String email = "notfound@example.com";
-        given(memberRepository.findByEmail(email)).willReturn(Optional.empty());
+        Long memberId = 999L;
+        given(memberRepository.findById(memberId)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> memberService.getProfile(email))
+        assertThatThrownBy(() -> memberService.getProfile(memberId))
                 .isInstanceOf(MemberNotFoundException.class)
-                .hasMessageContaining(email);
+                .hasMessageContaining(String.valueOf(memberId));
     }
 
     @Test
     @DisplayName("프로필 수정 성공")
     void updateProfileSuccess() {
-        String email = "test@example.com";
+        Long memberId = 1L;
         Member member = Member.builder()
-                .email(email)
+                .email("test@example.com")
                 .password("encodedPassword")
                 .name("홍길동")
                 .phone("01012345678")
@@ -135,27 +135,27 @@ class MemberServiceTest {
                 .phone("010-9876-5432")
                 .build();
 
-        given(memberRepository.findByEmail(email)).willReturn(Optional.of(member));
+        given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
 
-        MemberProfileResponse response = memberService.updateProfile(email, request);
+        MemberProfileResponse response = memberService.updateProfile(memberId, request);
 
         assertThat(response.getName()).isEqualTo("김철수");
         assertThat(response.getPhone()).isEqualTo("010-9876-5432");
     }
 
     @Test
-    @DisplayName("프로필 수정 실패 - 존재하지 않는 이메일이면 MemberNotFoundException 발생")
+    @DisplayName("프로필 수정 실패 - 존재하지 않는 memberId이면 MemberNotFoundException 발생")
     void updateProfileNotFound() {
-        String email = "notfound@example.com";
+        Long memberId = 999L;
         MemberProfileUpdateRequest request = MemberProfileUpdateRequest.builder()
                 .name("김철수")
                 .phone("010-9876-5432")
                 .build();
 
-        given(memberRepository.findByEmail(email)).willReturn(Optional.empty());
+        given(memberRepository.findById(memberId)).willReturn(Optional.empty());
 
-        assertThatThrownBy(() -> memberService.updateProfile(email, request))
+        assertThatThrownBy(() -> memberService.updateProfile(memberId, request))
                 .isInstanceOf(MemberNotFoundException.class)
-                .hasMessageContaining(email);
+                .hasMessageContaining(String.valueOf(memberId));
     }
 }

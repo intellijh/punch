@@ -123,7 +123,7 @@ class MemberControllerTest {
     @Test
     @DisplayName("프로필 페이지 요청")
     void profileForm() throws Exception {
-        given(memberService.getProfile("test@example.com")).willReturn(profileResponse);
+        given(memberService.getProfile(1L)).willReturn(profileResponse);
 
         mockMvc.perform(get("/member/profile").with(user(principal)))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ class MemberControllerTest {
     @Test
     @DisplayName("프로필 수정 성공")
     void updateProfileSuccess() throws Exception {
-        given(memberService.updateProfile(eq("test@example.com"), any(MemberProfileUpdateRequest.class))).willReturn(profileResponse);
+        given(memberService.updateProfile(eq(1L), any(MemberProfileUpdateRequest.class))).willReturn(profileResponse);
 
         mockMvc.perform(post("/member/profile").with(user(principal)).with(csrf())
                         .param("name", "김철수")
@@ -147,7 +147,7 @@ class MemberControllerTest {
     @Test
     @DisplayName("프로필 수정 실패 - validation 오류")
     void updateProfileValidationFail() throws Exception {
-        given(memberService.getProfile("test@example.com")).willReturn(profileResponse);
+        given(memberService.getProfile(1L)).willReturn(profileResponse);
 
         mockMvc.perform(post("/member/profile").with(user(principal)).with(csrf())
                         .param("name", "")

@@ -39,16 +39,16 @@ public class MemberService {
         return MemberRegisterResponse.from(savedMember);
     }
 
-    public MemberProfileResponse getProfile(String email) {
-        return memberRepository.findByEmail(email)
+    public MemberProfileResponse getProfile(Long memberId) {
+        return memberRepository.findById(memberId)
                 .map(MemberProfileResponse::from)
-                .orElseThrow(() -> new MemberNotFoundException(email));
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
     }
 
     @Transactional
-    public MemberProfileResponse updateProfile(String email, MemberProfileUpdateRequest request) {
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberNotFoundException(email));
+    public MemberProfileResponse updateProfile(Long memberId, MemberProfileUpdateRequest request) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
         member.updateProfile(request.getName(), request.getPhone());
         return MemberProfileResponse.from(member);
     }
