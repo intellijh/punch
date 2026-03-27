@@ -44,11 +44,16 @@ public class OrderController {
                 .findFirst()
                 .orElse(addresses.isEmpty() ? null : addresses.get(0));
 
+        OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
+        if (selectedAddress != null) {
+            orderCreateRequest.setAddressId(selectedAddress.getId());
+        }
+
         model.addAttribute("cart", cart);
         model.addAttribute("addresses", addresses);
         model.addAttribute("selectedAddress", selectedAddress);
         model.addAttribute("paymentMethods", PaymentMethod.values());
-        model.addAttribute("orderCreateRequest", new OrderCreateRequest());
+        model.addAttribute("orderCreateRequest", orderCreateRequest);
         model.addAttribute("addressCreateRequest", new AddressCreateRequest());
         return "order/checkout";
     }
