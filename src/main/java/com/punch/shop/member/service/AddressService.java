@@ -47,7 +47,7 @@ public class AddressService {
         }
 
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberNotFoundException("memberId: " + memberId));
+                .orElseThrow(() -> new MemberNotFoundException(memberId));
 
         boolean isFirstAddress = currentCount == 0;
 
