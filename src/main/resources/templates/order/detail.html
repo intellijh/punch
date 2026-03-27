@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>주문 상세</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+
+        <!-- 주문 완료 배너 -->
+        <div th:if="${confirmed}"
+             class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
+            <p class="text-green-700 font-semibold text-lg">주문이 완료되었습니다!</p>
+            <p class="text-green-600 text-sm mt-1">
+                주문번호 <span class="font-medium" th:text="${order.orderId}"></span>
+            </p>
+        </div>
+
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">주문 상세</h1>
+            <a th:href="@{/orders}" class="text-sm text-blue-600 hover:underline">주문 목록</a>
+        </div>
+
+        <!-- 주문 상태 -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500 mb-1">
+                        주문번호 <span th:text="${order.orderId}"></span>
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        <span th:text="${#temporals.format(order.createdAt, 'yyyy.MM.dd HH:mm')}"></span> 주문
+                    </p>
+                </div>
+                <span class="px-3 py-1 rounded-full text-sm font-semibold"
+                      th:classappend="${order.status.name() == 'PAID'} ? 'bg-blue-100 text-blue-700' :
+                                       (${order.status.name() == 'SHIPPING'} ? 'bg-yellow-100 text-yellow-700' :
+                                       (${order.status.name() == 'DELIVERED'} ? 'bg-green-100 text-green-700' :
+                                       'bg-gray-100 text-gray-600'))"
+                      th:text="${order.statusDescription}">
+                </span>
+            </div>
+        </div>
+
+        <!-- 배송지 -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+            <h2 class="text-base font-semibold text-gray-800 mb-3">배송지</h2>
+            <p class="font-medium text-gray-900" th:text="${order.recipientName}"></p>
+            <p class="text-sm text-gray-600 mt-1" th:text="${order.phone}"></p>
+            <p class="text-sm text-gray-600">
+                <span th:text="${order.zipCode}"></span>
+                <span th:text="${order.address}"></span>
+                <span th:if="${order.addressDetail}" th:text="${order.addressDetail}"></span>
+            </p>
+        </div>
+
+        <!-- 주문 상품 -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-4">
+            <h2 class="text-base font-semibold text-gray-800 mb-3">주문 상품</h2>
+            <div class="divide-y divide-gray-100">
+                <div th:each="item : ${order.items}" class="flex items-center gap-3 py-3">
+                    <a th:href="@{/products/{id}(id=${item.productId})}"
+                       class="flex-1 text-sm text-gray-800 hover:text-blue-600 transition"
+                       th:text="${item.productName}"></a>
+                    <div class="text-sm text-gray-500">
+                        <span th:text="${item.quantity}"></span>개
+                    </div>
+                    <div class="text-sm font-medium text-gray-900 w-28 text-right">
+                        <span th:text="${#numbers.formatInteger(item.subtotal, 0, 'COMMA')}"></span>원
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제 정보 -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h2 class="text-base font-semibold text-gray-800 mb-3">결제 정보</h2>
+            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                <span>결제 수단</span>
+                <span th:text="${order.paymentMethodDescription}"></span>
+            </div>
+            <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+                <span class="font-semibold text-gray-800">총 결제 금액</span>
+                <span class="text-xl font-bold text-blue-600">
+                    <span th:text="${#numbers.formatInteger(order.totalPrice, 0, 'COMMA')}"></span>원
+                </span>
+            </div>
+        </div>
+
+        <!-- 쇼핑 계속하기 (주문 완료 시) -->
+        <div th:if="${confirmed}" class="mt-6 text-center">
+            <a th:href="@{/products}"
+               class="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                쇼핑 계속하기
+            </a>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>
