@@ -181,43 +181,24 @@
                                   method="post" class="space-y-3">
                                 <input type="hidden" name="redirectUrl" value="/orders/checkout">
 
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <input type="text" th:field="*{label}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                               placeholder="배송지명 (집, 회사)">
-                                    </div>
-                                    <div>
-                                        <input type="text" th:field="*{recipientName}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                               placeholder="수령인">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <input type="text" th:field="*{phone}" data-phone
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                           placeholder="전화번호" maxlength="13">
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <input type="text" th:field="*{zipCode}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                               placeholder="우편번호" maxlength="5">
-                                    </div>
-                                    <div>
-                                        <input type="text" th:field="*{address}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                               placeholder="주소">
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <input type="text" th:field="*{addressDetail}"
-                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                           placeholder="상세주소 (선택)">
-                                </div>
+                                <input type="text" th:field="*{label}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="배송지명 (집, 회사)">
+                                <input type="text" th:field="*{recipientName}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="수령인">
+                                <input type="text" th:field="*{phone}" data-phone
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="전화번호" maxlength="13">
+                                <input type="text" th:field="*{zipCode}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="우편번호" maxlength="5">
+                                <input type="text" th:field="*{address}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="주소">
+                                <input type="text" th:field="*{addressDetail}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="상세주소 (선택)">
 
                                 <div class="flex gap-2 pt-1">
                                     <button type="button" onclick="toggleNewAddressForm()"
