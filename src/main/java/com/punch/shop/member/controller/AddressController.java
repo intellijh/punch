@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -43,6 +44,7 @@ public class AddressController {
     public String add(@AuthenticationPrincipal MemberPrincipal principal,
                       @Valid @ModelAttribute AddressCreateRequest addressCreateRequest,
                       BindingResult bindingResult,
+                      @RequestParam(required = false) String redirectUrl,
                       RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "member/address-form";
@@ -53,6 +55,10 @@ public class AddressController {
             redirectAttributes.addFlashAttribute("message", "배송지가 추가되었습니다.");
         } catch (MaxAddressCountException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+        if (StringUtils.hasText(redirectUrl)) {
+            return "redirect:" + redirectUrl;
         }
         return "redirect:/member/address";
     }
