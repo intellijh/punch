@@ -1,10 +1,5 @@
 package com.punch.shop.common.exception;
 
-import com.punch.shop.cart.exception.CartItemNotFoundException;
-import com.punch.shop.cart.exception.CartNotFoundException;
-import com.punch.shop.member.exception.AddressNotFoundException;
-import com.punch.shop.member.exception.MemberNotFoundException;
-import com.punch.shop.product.exception.ProductNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -33,13 +28,23 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
-    @ExceptionHandler({MemberNotFoundException.class, AddressNotFoundException.class, ProductNotFoundException.class,
-            CartNotFoundException.class, CartItemNotFoundException.class})
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFoundEntity(RuntimeException ex, Model model, HttpServletRequest request) {
+    public String handleNotFoundEntity(NotFoundException ex, Model model, HttpServletRequest request) {
         log.warn("404 Not Found: {}", ex.getMessage());
         model.addAttribute("status", HttpStatus.NOT_FOUND.value());
         model.addAttribute("error", HttpStatus.NOT_FOUND.getReasonPhrase());
+        model.addAttribute("message", ex.getMessage());
+        model.addAttribute("path", request.getRequestURI());
+        return "error";
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleBadRequest(BadRequestException ex, Model model, HttpServletRequest request) {
+        log.warn("400 Bad Request: {}", ex.getMessage());
+        model.addAttribute("status", HttpStatus.BAD_REQUEST.value());
+        model.addAttribute("error", HttpStatus.BAD_REQUEST.getReasonPhrase());
         model.addAttribute("message", ex.getMessage());
         model.addAttribute("path", request.getRequestURI());
         return "error";

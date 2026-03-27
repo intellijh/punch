@@ -1,6 +1,8 @@
 package com.punch.shop.member.exception;
 
-public class DuplicateEmailException extends RuntimeException {
+import com.punch.shop.common.exception.BadRequestException;
+
+public class DuplicateEmailException extends BadRequestException {
 
     public DuplicateEmailException(String message) {
         super(message);

@@ -1,6 +1,7 @@
 package com.punch.shop.product.model;
 
 import com.punch.shop.common.model.BaseEntity;
+import com.punch.shop.product.exception.OutOfStockException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,4 +42,11 @@ public class Product extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private ProductStatus status = ProductStatus.ACTIVE;
+
+    public void reduceStock(int quantity) {
+        if (stockQuantity < quantity) {
+            throw new OutOfStockException(id, name);
+        }
+        stockQuantity -= quantity;
+    }
 }

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/default}">
+<head>
+    <title>주문/결제</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">주문/결제</h1>
+
+        <form th:action="@{/orders}" th:object="${orderCreateRequest}" method="post" class="space-y-6">
+
+            <!-- 배송지 -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-800">배송지</h2>
+                    <button type="button" onclick="openAddressModal()"
+                            class="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                        배송지 변경
+                    </button>
+                </div>
+
+                <!-- 배송지 없음 -->
+                <div th:if="${selectedAddress == null}" class="text-gray-400 text-sm">
+                    등록된 배송지가 없습니다.
+                    <button type="button" onclick="openAddressModal()"
+                            class="ml-2 text-blue-600 hover:underline">배송지 추가</button>
+                </div>
+
+                <!-- 선택된 배송지 표시 -->
+                <div th:unless="${selectedAddress == null}" id="selectedAddressDisplay">
+                    <p class="font-medium text-gray-900">
+                        <span th:text="${selectedAddress.recipientName}"></span>
+                        <span th:if="${selectedAddress.label}"
+                              class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded"
+                              th:text="${selectedAddress.label}"></span>
+                    </p>
+                    <p class="text-sm text-gray-600 mt-1" th:text="${selectedAddress.phone}"></p>
+                    <p class="text-sm text-gray-600">
+                        <span th:text="${selectedAddress.zipCode}"></span>
+                        <span th:text="${selectedAddress.address}"></span>
+                        <span th:if="${selectedAddress.addressDetail}" th:text="${selectedAddress.addressDetail}"></span>
+                    </p>
+                </div>
+
+                <!-- 선택된 addressId (hidden) -->
+                <input type="hidden" th:field="*{addressId}" id="selectedAddressId"
+                       th:value="${selectedAddress != null ? selectedAddress.id : ''}">
+                <p th:if="${#fields.hasErrors('addressId')}" th:errors="*{addressId}"
+                   class="mt-2 text-sm text-red-600"></p>
+            </div>
+
+            <!-- 주문 상품 -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">주문 상품</h2>
+                <div class="divide-y divide-gray-100">
+                    <div th:each="item : ${cart.items}" class="flex items-center gap-3 py-3">
+                        <div class="flex-1 text-sm text-gray-800" th:text="${item.productName}"></div>
+                        <div class="text-sm text-gray-500">
+                            <span th:text="${item.quantity}"></span>개
+                        </div>
+                        <div class="text-sm font-medium text-gray-900 w-28 text-right">
+                            <span th:text="${#numbers.formatInteger(item.subtotal, 0, 'COMMA')}"></span>원
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 결제 수단 -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">결제 수단</h2>
+                <p th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"
+                   class="mb-2 text-sm text-red-600"></p>
+                <div>
+                    <label th:each="method : ${paymentMethods}"
+                           class="flex items-center gap-3 px-2 py-2 cursor-pointer hover:bg-gray-50 rounded-lg transition has-[:checked]:bg-blue-50">
+                        <input type="radio" th:field="*{paymentMethod}" th:value="${method.name()}"
+                               class="accent-blue-600">
+                        <!-- 결제수단 아이콘 -->
+                        <th:block th:switch="${method.name()}">
+                            <span th:case="'CREDIT_CARD'"
+                                  class="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                </svg>
+                            </span>
+                            <span th:case="'NAVER_PAY'"
+                                  class="w-8 h-8 rounded-md bg-green-500 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                                N
+                            </span>
+                            <span th:case="'KAKAO_PAY'"
+                                  class="w-8 h-8 rounded-md bg-yellow-400 text-gray-900 text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                                K
+                            </span>
+                            <span th:case="'TOSS_PAY'"
+                                  class="w-8 h-8 rounded-md bg-blue-500 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                                T
+                            </span>
+                        </th:block>
+                        <span class="text-sm font-medium text-gray-700" th:text="${method.description}"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 결제 금액 -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">결제 금액</h2>
+                <div class="flex justify-between items-center text-gray-600 mb-4">
+                    <span>총 상품금액</span>
+                    <span class="font-semibold text-gray-900">
+                        <span th:text="${#numbers.formatInteger(cart.totalPrice, 0, 'COMMA')}"></span>원
+                    </span>
+                </div>
+                <button type="submit"
+                        class="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition">
+                    <span th:text="${#numbers.formatInteger(cart.totalPrice, 0, 'COMMA')}"></span>원 결제하기
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- 배송지 선택 모달 -->
+    <div id="addressModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/50" onclick="closeAddressModal()"></div>
+        <div class="absolute inset-x-0 bottom-0 sm:inset-0 sm:flex sm:items-center sm:justify-center">
+            <div class="bg-white w-full sm:max-w-lg sm:rounded-xl rounded-t-xl max-h-[85vh] flex flex-col">
+
+                <!-- 모달 헤더 -->
+                <div class="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+                    <h3 class="text-lg font-semibold text-gray-800">배송지 선택</h3>
+                    <button type="button" onclick="closeAddressModal()"
+                            class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+                </div>
+
+                <!-- 배송지 목록 -->
+                <div class="overflow-y-auto flex-1 p-4 space-y-3">
+                    <div th:each="addr : ${addresses}"
+                         class="border rounded-lg p-4 cursor-pointer hover:border-blue-400 transition"
+                         onclick="selectAddress(this)"
+                         th:data-id="${addr.id}"
+                         th:data-recipient="${addr.recipientName}"
+                         th:data-phone="${addr.phone}"
+                         th:data-zip="${addr.zipCode}"
+                         th:data-address="${addr.address}"
+                         th:data-detail="${addr.addressDetail}"
+                         th:data-label="${addr.label}">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <p class="font-medium text-gray-900">
+                                    <span th:text="${addr.recipientName}"></span>
+                                    <span th:if="${addr.label}"
+                                          class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded"
+                                          th:text="${addr.label}"></span>
+                                    <span th:if="${addr.defaultAddress}"
+                                          class="ml-1 text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">기본</span>
+                                </p>
+                                <p class="text-sm text-gray-600 mt-1" th:text="${addr.phone}"></p>
+                                <p class="text-sm text-gray-600">
+                                    <span th:text="${addr.zipCode}"></span>
+                                    <span th:text="${addr.address}"></span>
+                                    <span th:if="${addr.addressDetail}" th:text="${addr.addressDetail}"></span>
+                                </p>
+                            </div>
+                            <span class="text-xs text-blue-600 font-medium mt-1">선택</span>
+                        </div>
+                    </div>
+
+                    <!-- 새 배송지 추가 섹션 -->
+                    <div class="border-t border-gray-100 pt-3">
+                        <button type="button" onclick="toggleNewAddressForm()"
+                                class="w-full text-sm text-blue-600 hover:text-blue-700 font-medium py-2 flex items-center justify-center gap-1">
+                            + 새 배송지 추가
+                        </button>
+
+                        <div id="newAddressForm" class="hidden mt-3">
+                            <form th:action="@{/member/address/new}" th:object="${addressCreateRequest}"
+                                  method="post" class="space-y-3">
+                                <input type="hidden" name="redirectUrl" value="/orders/checkout">
+
+                                <input type="text" th:field="*{label}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="배송지명 (집, 회사)">
+                                <input type="text" th:field="*{recipientName}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="수령인">
+                                <input type="text" th:field="*{phone}" data-phone
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="전화번호" maxlength="13">
+                                <input type="text" th:field="*{zipCode}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="우편번호" maxlength="5">
+                                <input type="text" th:field="*{address}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="주소">
+                                <input type="text" th:field="*{addressDetail}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                       placeholder="상세주소 (선택)">
+
+                                <div class="flex gap-2 pt-1">
+                                    <button type="button" onclick="toggleNewAddressForm()"
+                                            class="flex-1 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition">
+                                        취소
+                                    </button>
+                                    <button type="submit"
+                                            class="flex-1 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                                        추가하기
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="extra-js">
+<script>
+    function openAddressModal() {
+        document.getElementById('addressModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeAddressModal() {
+        document.getElementById('addressModal').classList.add('hidden');
+        document.body.style.overflow = '';
+        document.getElementById('newAddressForm').classList.add('hidden');
+    }
+
+    function selectAddress(el) {
+        const id = el.dataset.id;
+        const recipientName = el.dataset.recipient;
+        const phone = el.dataset.phone;
+        const zipCode = el.dataset.zip;
+        const address = el.dataset.address;
+        const addressDetail = el.dataset.detail;
+        const label = el.dataset.label;
+
+        document.getElementById('selectedAddressId').value = id;
+
+        const display = document.getElementById('selectedAddressDisplay');
+        let html = `<p class="font-medium text-gray-900">${recipientName}`;
+        if (label) html += ` <span class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">${label}</span>`;
+        html += `</p>`;
+        html += `<p class="text-sm text-gray-600 mt-1">${phone}</p>`;
+        html += `<p class="text-sm text-gray-600">${zipCode} ${address}`;
+        if (addressDetail) html += ` ${addressDetail}`;
+        html += `</p>`;
+        display.innerHTML = html;
+
+        closeAddressModal();
+    }
+
+    function toggleNewAddressForm() {
+        document.getElementById('newAddressForm').classList.toggle('hidden');
+    }
+</script>
+</th:block>
+</body>
+</html>
