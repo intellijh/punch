@@ -40,6 +40,8 @@
                   method="post"
                   class="space-y-4">
 
+                <input type="hidden" name="redirectUrl" th:value="${redirectUrl}">
+
                 <th:block th:replace="~{::fields}"></th:block>
 
                 <div class="pt-4 flex gap-3">
