@@ -87,10 +87,10 @@
                             <span th:text="${#numbers.formatInteger(cart.totalPrice, 0, 'COMMA')}"></span>원
                         </span>
                     </div>
-                    <button disabled
-                            class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    <a th:href="@{/orders/checkout}"
+                       class="block w-full text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
                         주문하기
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
