@@ -1,5 +1,6 @@
 package com.punch.shop.order.dto;
 
+import com.punch.shop.common.util.PhoneUtils;
 import com.punch.shop.order.model.Order;
 import com.punch.shop.order.model.OrderStatus;
 import com.punch.shop.order.model.PaymentMethod;
@@ -36,7 +37,7 @@ public class OrderResponse {
                 .paymentMethod(order.getPaymentMethod())
                 .paymentMethodDescription(order.getPaymentMethod().getDescription())
                 .recipientName(order.getRecipientName())
-                .phone(order.getPhone())
+                .phone(PhoneUtils.format(order.getPhone()))
                 .zipCode(order.getZipCode())
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
