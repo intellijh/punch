@@ -66,10 +66,12 @@ public class AddressController {
     @GetMapping("/{id}/edit")
     public String editForm(@AuthenticationPrincipal MemberPrincipal principal,
                            @PathVariable Long id,
+                           @RequestParam(required = false) String redirectUrl,
                            Model model) {
         AddressResponse address = addressService.getAddress(principal.getMemberId(), id);
 
         model.addAttribute("addressId", id);
+        model.addAttribute("redirectUrl", redirectUrl);
         model.addAttribute("addressUpdateRequest", AddressUpdateRequest.builder()
                 .label(address.getLabel())
                 .recipientName(address.getRecipientName())
@@ -86,6 +88,7 @@ public class AddressController {
                        @PathVariable Long id,
                        @Valid @ModelAttribute AddressUpdateRequest addressUpdateRequest,
                        BindingResult bindingResult,
+                       @RequestParam(required = false) String redirectUrl,
                        Model model,
                        RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
@@ -95,6 +98,10 @@ public class AddressController {
 
         addressService.updateAddress(principal.getMemberId(), id, addressUpdateRequest);
         redirectAttributes.addFlashAttribute("message", "배송지가 수정되었습니다.");
+
+        if (StringUtils.hasText(redirectUrl)) {
+            return "redirect:" + redirectUrl;
+        }
         return "redirect:/member/address";
     }
 
@@ -110,9 +117,14 @@ public class AddressController {
     @PostMapping("/{id}/default")
     public String setDefault(@AuthenticationPrincipal MemberPrincipal principal,
                              @PathVariable Long id,
+                             @RequestParam(required = false) String redirectUrl,
                              RedirectAttributes redirectAttributes) {
         addressService.setDefaultAddress(principal.getMemberId(), id);
         redirectAttributes.addFlashAttribute("message", "기본 배송지가 변경되었습니다.");
+
+        if (StringUtils.hasText(redirectUrl)) {
+            return "redirect:" + redirectUrl;
+        }
         return "redirect:/member/address";
     }
 }
