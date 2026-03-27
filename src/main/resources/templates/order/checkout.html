@@ -73,11 +73,33 @@
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">결제 수단</h2>
                 <p th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}"
                    class="mb-2 text-sm text-red-600"></p>
-                <div class="grid grid-cols-2 gap-3">
+                <div>
                     <label th:each="method : ${paymentMethods}"
-                           class="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:border-blue-400 transition has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
+                           class="flex items-center gap-3 px-2 py-2 cursor-pointer hover:bg-gray-50 rounded-lg transition has-[:checked]:bg-blue-50">
                         <input type="radio" th:field="*{paymentMethod}" th:value="${method.name()}"
                                class="accent-blue-600">
+                        <!-- 결제수단 아이콘 -->
+                        <th:block th:switch="${method.name()}">
+                            <span th:case="'CREDIT_CARD'"
+                                  class="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                                </svg>
+                            </span>
+                            <span th:case="'NAVER_PAY'"
+                                  class="w-8 h-8 rounded-md bg-green-500 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                                N
+                            </span>
+                            <span th:case="'KAKAO_PAY'"
+                                  class="w-8 h-8 rounded-md bg-yellow-400 text-gray-900 text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                                K
+                            </span>
+                            <span th:case="'TOSS_PAY'"
+                                  class="w-8 h-8 rounded-md bg-blue-500 text-white text-sm font-extrabold flex items-center justify-center flex-shrink-0">
+                                T
+                            </span>
+                        </th:block>
                         <span class="text-sm font-medium text-gray-700" th:text="${method.description}"></span>
                     </label>
                 </div>
