@@ -41,6 +41,11 @@ spring:
     livereload:
       enabled: true
 
+# Logging Configuration
+logging:
+  level:
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: ERROR
+
 # Server Configuration
 server:
   port: ${SERVER_PORT:8080}
