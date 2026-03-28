@@ -43,10 +43,18 @@ public class Product extends BaseEntity {
     @Builder.Default
     private ProductStatus status = ProductStatus.ACTIVE;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private int orderCount = 0;
+
     public void reduceStock(int quantity) {
         if (stockQuantity < quantity) {
             throw new OutOfStockException(id, name);
         }
         stockQuantity -= quantity;
+    }
+
+    public void increaseOrderCount(int quantity) {
+        this.orderCount += quantity;
     }
 }

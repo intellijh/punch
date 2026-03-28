@@ -46,6 +46,7 @@ public class OrderService {
         cart.getItems().forEach(cartItem -> {
             Product product = cartItem.getProduct();
             product.reduceStock(cartItem.getQuantity());
+            product.increaseOrderCount(cartItem.getQuantity());
             order.addItem(product, cartItem.getQuantity());
         });
 
