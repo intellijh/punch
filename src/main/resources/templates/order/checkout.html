@@ -198,12 +198,18 @@
                                 <input type="text" th:field="*{phone}" data-phone
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="전화번호" maxlength="13">
-                                <input type="text" th:field="*{zipCode}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="우편번호" maxlength="5">
+                                <div class="flex gap-2">
+                                    <input type="text" th:field="*{zipCode}"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-default"
+                                           placeholder="우편번호" readonly>
+                                    <button type="button" onclick="openKakaoPostcode()"
+                                            class="flex-shrink-0 px-3 py-2 bg-yellow-400 text-gray-900 text-xs font-medium rounded-lg hover:bg-yellow-500 transition cursor-pointer">
+                                        주소 검색
+                                    </button>
+                                </div>
                                 <input type="text" th:field="*{address}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                       placeholder="주소">
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-gray-50 cursor-default"
+                                       placeholder="주소 검색으로 입력해주세요" readonly>
                                 <input type="text" th:field="*{addressDetail}"
                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                        placeholder="상세주소 (선택)">
@@ -229,7 +235,18 @@
 </div>
 
 <th:block layout:fragment="extra-js">
+<script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script>
+    function openKakaoPostcode() {
+        new kakao.Postcode({
+            oncomplete: function(data) {
+                document.getElementById('zipCode').value = data.zonecode;
+                document.getElementById('address').value = data.roadAddress || data.jibunAddress;
+                document.getElementById('addressDetail').focus();
+            }
+        }).open();
+    }
+
     function openAddressModal() {
         document.getElementById('addressModal').classList.remove('hidden');
         document.body.style.overflow = 'hidden';
