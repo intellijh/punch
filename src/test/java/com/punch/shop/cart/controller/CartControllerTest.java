@@ -40,7 +40,7 @@ class CartControllerTest {
 
     @BeforeEach
     void setUp() {
-        principal = new MemberPrincipal(1L, "test@example.com", "encodedPassword", List.of());
+        principal = new MemberPrincipal(1L, "test@example.com", "홍길동", "encodedPassword", List.of());
         cartResponse = CartResponse.builder()
                 .items(List.of(CartItemResponse.builder()
                         .id(1L).productId(1L).productName("테스트 상품")

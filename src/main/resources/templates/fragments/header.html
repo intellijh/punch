@@ -43,7 +43,7 @@
                 <!-- User Menu -->
                 <div sec:authorize="isAuthenticated()" class="flex items-center space-x-4">
                     <a th:href="@{/member/profile}" class="text-gray-700 hover:text-blue-600">
-                        <span sec:authentication="name">사용자</span>님
+                        <span sec:authentication="principal.name">사용자</span>님
                     </a>
                     <a th:href="@{/orders}" class="text-gray-700 hover:text-blue-600">주문내역</a>
                     <form th:action="@{/member/logout}" method="post" class="inline">

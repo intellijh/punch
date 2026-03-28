@@ -42,7 +42,7 @@ class MemberControllerTest {
 
     @BeforeEach
     void setUp() {
-        principal = new MemberPrincipal(1L, "test@example.com", "encodedPassword", List.of());
+        principal = new MemberPrincipal(1L, "test@example.com", "홍길동", "encodedPassword", List.of());
         profileResponse = MemberProfileResponse.builder()
                 .email("test@example.com")
                 .name("홍길동")

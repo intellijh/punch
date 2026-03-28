@@ -28,6 +28,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new MemberPrincipal(
                 member.getId(),
                 member.getEmail(),
+                member.getName(),
                 member.getPassword(),
                 List.of(new SimpleGrantedAuthority(member.getRole().getAuthority()))
         );
