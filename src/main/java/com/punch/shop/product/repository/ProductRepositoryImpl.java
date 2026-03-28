@@ -60,6 +60,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         return sort.stream()
                 .map(order -> switch (order.getProperty()) {
                     case "price" -> order.isAscending() ? product.price.asc() : product.price.desc();
+                    case "orderCount" -> product.orderCount.desc();
                     default -> order.isAscending() ? product.createdAt.asc() : product.createdAt.desc();
                 })
                 .toArray(OrderSpecifier[]::new);
