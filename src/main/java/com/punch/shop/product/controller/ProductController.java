@@ -28,7 +28,7 @@ public class ProductController {
 
     @GetMapping
     public String list(@RequestParam(defaultValue = "0") int page,
-                       @RequestParam(defaultValue = "newest") String sort,
+                       @RequestParam(defaultValue = "popular") String sort,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) Long categoryId,
                        Model model) {
@@ -53,7 +53,8 @@ public class ProductController {
         return switch (sort) {
             case "price_asc" -> Sort.by("price").ascending();
             case "price_desc" -> Sort.by("price").descending();
-            default -> Sort.by("createdAt").descending();
+            case "newest" -> Sort.by("createdAt").descending();
+            default -> Sort.by("orderCount").descending();
         };
     }
 }

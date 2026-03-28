@@ -104,6 +104,7 @@ class OrderServiceTest {
         assertThat(response.getTotalPrice()).isEqualByComparingTo(BigDecimal.valueOf(20000));
         assertThat(response.getItems()).hasSize(1);
         assertThat(product.getStockQuantity()).isEqualTo(8);
+        assertThat(product.getOrderCount()).isEqualTo(2);
         assertThat(cart.getItems()).isEmpty();
         verify(orderRepository).save(any(Order.class));
     }
