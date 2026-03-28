@@ -19,8 +19,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public String handleNotFound(NoResourceFoundException ex, Model model, HttpServletRequest request) {
-        log.debug("404 Not Found: {}", request.getRequestURI());
+    public String handleNoResourceFound(NoResourceFoundException ex, Model model, HttpServletRequest request) {
         model.addAttribute("status", HttpStatus.NOT_FOUND.value());
         model.addAttribute("error", HttpStatus.NOT_FOUND.getReasonPhrase());
         model.addAttribute("message", "요청하신 페이지를 찾을 수 없습니다.");
