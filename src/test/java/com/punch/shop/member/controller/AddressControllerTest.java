@@ -40,7 +40,7 @@ class AddressControllerTest {
 
     @BeforeEach
     void setUp() {
-        principal = new MemberPrincipal(1L, "test@example.com", "encodedPassword", List.of());
+        principal = new MemberPrincipal(1L, "test@example.com", "홍길동", "encodedPassword", List.of());
         addressResponse = AddressResponse.builder()
                 .id(1L).label("집").recipientName("홍길동")
                 .phone("010-1234-5678").zipCode("12345")

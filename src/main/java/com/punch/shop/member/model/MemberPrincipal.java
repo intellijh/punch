@@ -18,6 +18,7 @@ public class MemberPrincipal implements UserDetails, Serializable {
 
     private final Long memberId;
     private final String email;
+    private final String name;
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
