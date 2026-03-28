@@ -12,6 +12,11 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:password}
 
+  # SQL Initialization
+  sql:
+    init:
+      mode: always
+
   # JPA Configuration (common)
   jpa:
     hibernate:
