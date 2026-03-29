@@ -1,5 +1,7 @@
 package com.punch.shop.product.service;
 
+import com.punch.shop.common.service.BlobStorageService;
+import com.punch.shop.product.dto.ProductCreateRequest;
 import com.punch.shop.product.dto.ProductDetailResponse;
 import com.punch.shop.product.dto.ProductResponse;
 import com.punch.shop.product.exception.ProductNotFoundException;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -40,6 +43,9 @@ class ProductServiceTest {
 
     @Mock
     private CategoryRepository categoryRepository;
+
+    @Mock
+    private BlobStorageService blobStorageService;
 
     @InjectMocks
     private ProductService productService;
@@ -137,5 +143,43 @@ class ProductServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getName()).isEqualTo("가전/디지털");
+    }
+
+    @Test
+    @DisplayName("상품 등록 성공")
+    void createProductSuccess() {
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .name("테스트 상품")
+                .description("상품 설명")
+                .price(BigDecimal.valueOf(10000))
+                .stockQuantity(10)
+                .categoryId(1L)
+                .build();
+
+        MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", "data".getBytes());
+
+        given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
+        given(blobStorageService.upload(image)).willReturn("https://storage.blob.core.windows.net/product-images/test.jpg");
+        given(productRepository.save(any(Product.class))).willReturn(product);
+
+        Long id = productService.createProduct(request, image);
+
+        assertThat(id).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("상품 등록 실패 - 존재하지 않는 카테고리")
+    void createProductCategoryNotFound() {
+        ProductCreateRequest request = ProductCreateRequest.builder()
+                .categoryId(99L)
+                .build();
+
+        MockMultipartFile image = new MockMultipartFile("image", "test.jpg", "image/jpeg", "data".getBytes());
+
+        given(categoryRepository.findById(99L)).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> productService.createProduct(request, image))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("카테고리");
     }
 }
