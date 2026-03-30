@@ -45,30 +45,30 @@ public class OrderController {
                 .findFirst()
                 .orElse(addresses.isEmpty() ? null : addresses.get(0));
 
-        OrderCreateRequest orderCreateRequest = new OrderCreateRequest();
+        OrderCreateRequest request = new OrderCreateRequest();
         if (selectedAddress != null) {
-            orderCreateRequest.setAddressId(selectedAddress.getId());
+            request.setAddressId(selectedAddress.getId());
         }
 
         model.addAttribute("cart", cart);
         model.addAttribute("addresses", addresses);
         model.addAttribute("selectedAddress", selectedAddress);
         model.addAttribute("paymentMethods", PaymentMethod.values());
-        model.addAttribute("orderCreateRequest", orderCreateRequest);
+        model.addAttribute("orderCreateRequest", request);
         model.addAttribute("addressCreateRequest", new AddressCreateRequest());
         return "order/checkout";
     }
 
     @PostMapping
     public String createOrder(@AuthenticationPrincipal MemberPrincipal principal,
-                              @Valid @ModelAttribute OrderCreateRequest orderCreateRequest,
+                              @Valid @ModelAttribute OrderCreateRequest request,
                               BindingResult bindingResult,
                               Model model) {
         if (bindingResult.hasErrors()) {
             CartResponse cart = cartService.getCart(principal.getMemberId());
             List<AddressResponse> addresses = addressService.getAddresses(principal.getMemberId());
             AddressResponse selectedAddress = addresses.stream()
-                    .filter(a -> a.getId().equals(orderCreateRequest.getAddressId()))
+                    .filter(a -> a.getId().equals(request.getAddressId()))
                     .findFirst()
                     .orElse(addresses.isEmpty() ? null : addresses.get(0));
 
@@ -80,7 +80,7 @@ public class OrderController {
             return "order/checkout";
         }
 
-        OrderResponse order = orderService.createOrder(principal.getMemberId(), orderCreateRequest);
+        OrderResponse order = orderService.createOrder(principal.getMemberId(), request);
         log.info("주문 완료: memberId={}, orderId={}", principal.getMemberId(), order.getOrderId());
         return "redirect:/orders/" + order.getOrderId() + "/confirmation";
     }
