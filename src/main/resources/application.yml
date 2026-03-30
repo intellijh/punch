@@ -46,6 +46,12 @@ logging:
   level:
     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: ERROR
 
+# Azure Blob Storage Configuration
+azure:
+  storage:
+    connection-string: ${AZURE_STORAGE_CONNECTION_STRING}
+    container-name: ${AZURE_STORAGE_CONTAINER_NAME:product-images}
+
 # Server Configuration
 server:
   port: ${SERVER_PORT:8080}

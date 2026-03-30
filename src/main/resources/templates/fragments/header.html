@@ -42,6 +42,8 @@
 
                 <!-- User Menu -->
                 <div sec:authorize="isAuthenticated()" class="flex items-center space-x-4">
+                    <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/products/register}"
+                       class="text-gray-700 hover:text-blue-600">상품 등록</a>
                     <a th:href="@{/member/profile}" class="text-gray-700 hover:text-blue-600">
                         <span sec:authentication="principal.name">사용자</span>님
                     </a>
