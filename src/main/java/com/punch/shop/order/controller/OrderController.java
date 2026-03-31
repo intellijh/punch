@@ -112,4 +112,12 @@ public class OrderController {
         model.addAttribute("orders", orders);
         return "order/list";
     }
+
+    @PostMapping("/{orderId}/cancel")
+    public String cancelOrder(@AuthenticationPrincipal MemberPrincipal principal,
+                              @PathVariable Long orderId) {
+        orderService.cancelOrder(principal.getMemberId(), orderId);
+        log.info("주문 취소: memberId={}, orderId={}", principal.getMemberId(), orderId);
+        return "redirect:/orders/" + orderId;
+    }
 }

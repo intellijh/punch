@@ -66,4 +66,17 @@ public class OrderService {
                 .map(OrderResponse::from)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
+
+    @Transactional
+    public void cancelOrder(Long memberId, Long orderId) {
+        Order order = orderRepository.findByIdAndMemberId(orderId, memberId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        order.cancel();
+
+        order.getItems().forEach(item -> {
+            item.getProduct().restoreStock(item.getQuantity());
+            item.getProduct().decreaseOrderCount(item.getQuantity());
+        });
+    }
 }

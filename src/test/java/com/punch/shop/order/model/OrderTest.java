@@ -11,7 +11,10 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 
+import com.punch.shop.order.exception.OrderCancelNotAllowedException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OrderTest {
 
@@ -92,5 +95,25 @@ class OrderTest {
         order.updateStatus(OrderStatus.SHIPPING);
 
         assertThat(order.getStatus()).isEqualTo(OrderStatus.SHIPPING);
+    }
+
+    @Test
+    @DisplayName("주문 취소 - 결제 완료 상태에서 취소 성공")
+    void cancelOrder() {
+        Order order = Order.create(member, address, PaymentMethod.CREDIT_CARD);
+
+        order.cancel();
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+    }
+
+    @Test
+    @DisplayName("주문 취소 - 결제 완료 상태가 아니면 예외 발생")
+    void cancelOrderNotAllowed() {
+        Order order = Order.create(member, address, PaymentMethod.CREDIT_CARD);
+        order.updateStatus(OrderStatus.SHIPPING);
+
+        assertThatThrownBy(order::cancel)
+                .isInstanceOf(OrderCancelNotAllowedException.class);
     }
 }

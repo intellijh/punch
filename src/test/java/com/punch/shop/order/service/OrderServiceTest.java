@@ -11,6 +11,7 @@ import com.punch.shop.member.repository.MemberRepository;
 import com.punch.shop.order.dto.OrderCreateRequest;
 import com.punch.shop.order.dto.OrderListItemResponse;
 import com.punch.shop.order.dto.OrderResponse;
+import com.punch.shop.order.exception.OrderCancelNotAllowedException;
 import com.punch.shop.order.exception.OrderNotFoundException;
 import com.punch.shop.order.model.Order;
 import com.punch.shop.order.model.OrderStatus;
@@ -204,5 +205,48 @@ class OrderServiceTest {
 
         assertThatThrownBy(() -> orderService.getOrder(member.getId(), nonExistentOrderId))
                 .isInstanceOf(OrderNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("주문 취소 성공 - 상태 변경 및 재고 복원")
+    void cancelOrderSuccess() {
+        product.reduceStock(2);
+        product.increaseOrderCount(2);
+
+        Order order = Order.create(member, address, PaymentMethod.CREDIT_CARD);
+        order.addItem(product, 2);
+        ReflectionTestUtils.setField(order, "id", 1000L);
+
+        given(orderRepository.findByIdAndMemberId(order.getId(), member.getId())).willReturn(Optional.of(order));
+
+        orderService.cancelOrder(member.getId(), order.getId());
+
+        assertThat(order.getStatus()).isEqualTo(OrderStatus.CANCELLED);
+        assertThat(product.getStockQuantity()).isEqualTo(10);
+        assertThat(product.getOrderCount()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("주문 취소 실패 - 존재하지 않는 주문")
+    void cancelOrderNotFound() {
+        Long nonExistentOrderId = 999L;
+        given(orderRepository.findByIdAndMemberId(nonExistentOrderId, member.getId())).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> orderService.cancelOrder(member.getId(), nonExistentOrderId))
+                .isInstanceOf(OrderNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("주문 취소 실패 - 취소 불가능한 상태(배송 중)")
+    void cancelOrderNotAllowed() {
+        Order order = Order.create(member, address, PaymentMethod.CREDIT_CARD);
+        order.addItem(product, 2);
+        ReflectionTestUtils.setField(order, "id", 1000L);
+        order.updateStatus(OrderStatus.SHIPPING);
+
+        given(orderRepository.findByIdAndMemberId(order.getId(), member.getId())).willReturn(Optional.of(order));
+
+        assertThatThrownBy(() -> orderService.cancelOrder(member.getId(), order.getId()))
+                .isInstanceOf(OrderCancelNotAllowedException.class);
     }
 }

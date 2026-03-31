@@ -89,6 +89,17 @@
             </div>
         </div>
 
+        <!-- 주문 취소 (결제 완료 상태일 때만) -->
+        <div th:if="${order.status.name() == 'PAID' && confirmed == null}" class="mt-6 text-center">
+            <form th:action="@{/orders/{id}/cancel(id=${order.orderId})}" method="post"
+                  onsubmit="return confirm('정말 주문을 취소하시겠습니까?');">
+                <button type="submit"
+                        class="px-8 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+                    주문 취소
+                </button>
+            </form>
+        </div>
+
         <!-- 쇼핑 계속하기 (주문 완료 시) -->
         <div th:if="${confirmed}" class="mt-6 text-center">
             <a th:href="@{/products}"

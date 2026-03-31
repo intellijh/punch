@@ -54,7 +54,15 @@ public class Product extends BaseEntity {
         stockQuantity -= quantity;
     }
 
+    public void restoreStock(int quantity) {
+        stockQuantity += quantity;
+    }
+
     public void increaseOrderCount(int quantity) {
         this.orderCount += quantity;
+    }
+
+    public void decreaseOrderCount(int quantity) {
+        this.orderCount -= quantity;
     }
 }

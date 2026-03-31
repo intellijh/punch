@@ -3,6 +3,7 @@ package com.punch.shop.order.model;
 import com.punch.shop.common.model.BaseEntity;
 import com.punch.shop.member.model.Address;
 import com.punch.shop.member.model.Member;
+import com.punch.shop.order.exception.OrderCancelNotAllowedException;
 import com.punch.shop.product.model.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -62,6 +63,14 @@ public class Order extends BaseEntity {
         OrderItem item = OrderItem.create(this, product, quantity);
         items.add(item);
         this.totalPrice = totalPrice.add(item.getSubtotal());
+    }
+
+    public void cancel() {
+        if (this.status != OrderStatus.PAID) {
+            throw new OrderCancelNotAllowedException(this.id);
+        }
+
+        this.status = OrderStatus.CANCELLED;
     }
 
     public void updateStatus(OrderStatus status) {
