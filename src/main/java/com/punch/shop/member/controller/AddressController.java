@@ -42,7 +42,7 @@ public class AddressController {
 
     @PostMapping("/new")
     public String add(@AuthenticationPrincipal MemberPrincipal principal,
-                      @Valid @ModelAttribute AddressCreateRequest addressCreateRequest,
+                      @Valid @ModelAttribute AddressCreateRequest request,
                       BindingResult bindingResult,
                       @RequestParam(required = false) String redirectUrl,
                       RedirectAttributes redirectAttributes) {
@@ -51,7 +51,7 @@ public class AddressController {
         }
 
         try {
-            addressService.addAddress(principal.getMemberId(), addressCreateRequest);
+            addressService.addAddress(principal.getMemberId(), request);
             redirectAttributes.addFlashAttribute("message", "배송지가 추가되었습니다.");
         } catch (MaxAddressCountException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -86,7 +86,7 @@ public class AddressController {
     @PostMapping("/{id}/edit")
     public String edit(@AuthenticationPrincipal MemberPrincipal principal,
                        @PathVariable Long id,
-                       @Valid @ModelAttribute AddressUpdateRequest addressUpdateRequest,
+                       @Valid @ModelAttribute AddressUpdateRequest request,
                        BindingResult bindingResult,
                        @RequestParam(required = false) String redirectUrl,
                        Model model,
@@ -96,7 +96,7 @@ public class AddressController {
             return "member/address-form";
         }
 
-        addressService.updateAddress(principal.getMemberId(), id, addressUpdateRequest);
+        addressService.updateAddress(principal.getMemberId(), id, request);
         redirectAttributes.addFlashAttribute("message", "배송지가 수정되었습니다.");
 
         if (StringUtils.hasText(redirectUrl)) {
