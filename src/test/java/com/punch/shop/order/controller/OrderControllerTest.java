@@ -11,6 +11,7 @@ import com.punch.shop.order.dto.OrderCreateRequest;
 import com.punch.shop.order.dto.OrderItemResponse;
 import com.punch.shop.order.dto.OrderListItemResponse;
 import com.punch.shop.order.dto.OrderResponse;
+import com.punch.shop.order.exception.OrderCancelNotAllowedException;
 import com.punch.shop.order.exception.OrderNotFoundException;
 import com.punch.shop.order.model.OrderStatus;
 import com.punch.shop.order.model.PaymentMethod;
@@ -190,6 +191,36 @@ class OrderControllerTest {
 
         mockMvc.perform(get("/orders/99").with(user(principal)))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("주문 취소 성공 - 주문 상세 페이지로 리다이렉트")
+    void cancelOrder() throws Exception {
+        willDoNothing().given(orderService).cancelOrder(1L, 1L);
+
+        mockMvc.perform(post("/orders/1/cancel").with(user(principal)).with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/orders/1"));
+
+        verify(orderService).cancelOrder(1L, 1L);
+    }
+
+    @Test
+    @DisplayName("주문 취소 실패 - 존재하지 않는 주문이면 404")
+    void cancelOrder_notFound() throws Exception {
+        willThrow(new OrderNotFoundException(99L)).given(orderService).cancelOrder(1L, 99L);
+
+        mockMvc.perform(post("/orders/99/cancel").with(user(principal)).with(csrf()))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("주문 취소 실패 - 취소 불가능한 상태이면 400")
+    void cancelOrder_notAllowed() throws Exception {
+        willThrow(new OrderCancelNotAllowedException(1L)).given(orderService).cancelOrder(1L, 1L);
+
+        mockMvc.perform(post("/orders/1/cancel").with(user(principal)).with(csrf()))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
