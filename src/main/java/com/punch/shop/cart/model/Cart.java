@@ -58,10 +58,27 @@ public class Cart extends BaseEntity {
         items.removeIf(item -> item.getProduct().getId().equals(productId));
     }
 
-    public BigDecimal getTotalPrice() {
+    public BigDecimal getCheckedTotalPrice() {
         return items.stream()
+                .filter(CartItem::isChecked)
                 .map(CartItem::getSubtotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void updateItemChecked(Long productId, boolean checked) {
+        items.stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new CartItemNotFoundException(productId))
+                .updateChecked(checked);
+    }
+
+    public void checkAllItems(boolean checked) {
+        items.forEach(item -> item.updateChecked(checked));
+    }
+
+    public int getItemCount() {
+        return items.size();
     }
 
     public static Cart create(Member member) {
