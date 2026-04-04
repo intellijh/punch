@@ -55,6 +55,24 @@ public class CartService {
         cart.removeItem(productId);
     }
 
+    @Transactional
+    public void updateItemChecked(Long memberId, Long productId, boolean checked) {
+        Cart cart = getCartOrThrow(memberId);
+        cart.updateItemChecked(productId, checked);
+    }
+
+    @Transactional
+    public void checkAllItems(Long memberId, boolean checked) {
+        Cart cart = getCartOrThrow(memberId);
+        cart.checkAllItems(checked);
+    }
+
+    public int getCartItemCount(Long memberId) {
+        return cartRepository.findByMemberId(memberId)
+                .map(Cart::getItemCount)
+                .orElse(0);
+    }
+
     private Cart getCartOrThrow(Long memberId) {
         return cartRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new CartNotFoundException());
