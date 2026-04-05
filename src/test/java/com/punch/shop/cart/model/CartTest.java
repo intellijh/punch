@@ -132,17 +132,61 @@ class CartTest {
     }
 
     @Test
-    @DisplayName("총 금액 계산 - 모든 항목의 소계 합산")
-    void getTotalPrice() {
+    @DisplayName("체크된 항목만 합계 계산")
+    void getCheckedTotalPrice() {
         cart.addItem(productA, 2);  // 10000 * 2 = 20000
         cart.addItem(productB, 1);  // 20000 * 1 = 20000
 
-        assertThat(cart.getTotalPrice()).isEqualByComparingTo(BigDecimal.valueOf(40000));
+        cart.updateItemChecked(productB.getId(), false);
+
+        assertThat(cart.getCheckedTotalPrice()).isEqualByComparingTo(BigDecimal.valueOf(20000));
     }
 
     @Test
-    @DisplayName("총 금액 계산 - 빈 장바구니는 0원")
-    void getTotalPrice_empty() {
-        assertThat(cart.getTotalPrice()).isEqualByComparingTo(BigDecimal.ZERO);
+    @DisplayName("체크된 항목 합계 - 빈 장바구니는 0원")
+    void getCheckedTotalPrice_empty() {
+        assertThat(cart.getCheckedTotalPrice()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @DisplayName("상품 체크 상태 변경 - 체크 해제 후 다시 체크")
+    void updateItemChecked() {
+        cart.addItem(productA, 1);
+
+        cart.updateItemChecked(productA.getId(), false);
+        assertThat(cart.getItems().get(0).isChecked()).isFalse();
+
+        cart.updateItemChecked(productA.getId(), true);
+        assertThat(cart.getItems().get(0).isChecked()).isTrue();
+    }
+
+    @Test
+    @DisplayName("상품 체크 상태 변경 실패 - 없는 상품이면 CartItemNotFoundException 발생")
+    void updateItemChecked_notFound() {
+        assertThatThrownBy(() -> cart.updateItemChecked(99L, false))
+                .isInstanceOf(CartItemNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("전체 선택/해제")
+    void checkAllItems() {
+        cart.addItem(productA, 1);
+        cart.addItem(productB, 2);
+
+        cart.checkAllItems(false);
+        assertThat(cart.getItems()).allMatch(item -> !item.isChecked());
+
+        cart.checkAllItems(true);
+        assertThat(cart.getItems()).allMatch(CartItem::isChecked);
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 수 조회")
+    void getItemCount() {
+        assertThat(cart.getItemCount()).isEqualTo(0);
+
+        cart.addItem(productA, 1);
+        cart.addItem(productB, 2);
+        assertThat(cart.getItemCount()).isEqualTo(2);
     }
 }

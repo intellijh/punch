@@ -20,7 +20,7 @@ public class CartResponse {
                 .toList();
         return CartResponse.builder()
                 .items(items)
-                .totalPrice(cart.getTotalPrice())
+                .totalPrice(cart.getCheckedTotalPrice())
                 .build();
     }
 

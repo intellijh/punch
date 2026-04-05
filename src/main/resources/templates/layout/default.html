@@ -6,6 +6,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="_csrf" th:if="${_csrf}" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:if="${_csrf}" th:content="${_csrf.headerName}">
+    <meta sec:authorize="isAuthenticated()" name="authenticated" content="true">
 
     <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE">Punch</title>
 

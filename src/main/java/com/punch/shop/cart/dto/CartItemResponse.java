@@ -17,6 +17,9 @@ public class CartItemResponse {
     private BigDecimal price;
     private int quantity;
     private BigDecimal subtotal;
+    private boolean checked;
+    private int stockQuantity;
+    private boolean outOfStock;
 
     public static CartItemResponse from(CartItem item) {
         return CartItemResponse.builder()
@@ -27,6 +30,9 @@ public class CartItemResponse {
                 .price(item.getProduct().getPrice())
                 .quantity(item.getQuantity())
                 .subtotal(item.getSubtotal())
+                .checked(item.isChecked())
+                .stockQuantity(item.getProduct().getStockQuantity())
+                .outOfStock(item.getProduct().getStockQuantity() == 0)
                 .build();
     }
 }

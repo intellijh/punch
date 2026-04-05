@@ -31,6 +31,14 @@ public class CartItem extends BaseEntity {
     @Column(nullable = false)
     private int quantity;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean checked = true;
+
+    public void updateChecked(boolean checked) {
+        this.checked = checked;
+    }
+
     public void updateQuantity(int quantity) {
         if (quantity < 1) {
             throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");

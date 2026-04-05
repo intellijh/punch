@@ -177,4 +177,55 @@ class CartServiceTest {
         assertThatThrownBy(() -> cartService.removeItem(member.getId(), product.getId()))
                 .isInstanceOf(CartNotFoundException.class);
     }
+
+    @Test
+    @DisplayName("상품 체크 상태 변경 성공")
+    void updateItemChecked_success() {
+        Cart cart = Cart.create(member);
+        cart.addItem(product, 1);
+        given(cartRepository.findByMemberId(member.getId())).willReturn(Optional.of(cart));
+
+        cartService.updateItemChecked(member.getId(), product.getId(), false);
+
+        assertThat(cart.getItems().get(0).isChecked()).isFalse();
+    }
+
+    @Test
+    @DisplayName("상품 체크 상태 변경 실패 - 장바구니 없으면 CartNotFoundException 발생")
+    void updateItemChecked_cartNotFound() {
+        given(cartRepository.findByMemberId(member.getId())).willReturn(Optional.empty());
+
+        assertThatThrownBy(() -> cartService.updateItemChecked(member.getId(), product.getId(), false))
+                .isInstanceOf(CartNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("전체 선택/해제 성공")
+    void checkAllItems_success() {
+        Cart cart = Cart.create(member);
+        cart.addItem(product, 1);
+        given(cartRepository.findByMemberId(member.getId())).willReturn(Optional.of(cart));
+
+        cartService.checkAllItems(member.getId(), false);
+
+        assertThat(cart.getItems()).allMatch(item -> !item.isChecked());
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 수 조회 - 장바구니 존재")
+    void getCartItemCount_exists() {
+        Cart cart = Cart.create(member);
+        cart.addItem(product, 3);
+        given(cartRepository.findByMemberId(member.getId())).willReturn(Optional.of(cart));
+
+        assertThat(cartService.getCartItemCount(member.getId())).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("장바구니 상품 수 조회 - 장바구니 없으면 0")
+    void getCartItemCount_empty() {
+        given(cartRepository.findByMemberId(member.getId())).willReturn(Optional.empty());
+
+        assertThat(cartService.getCartItemCount(member.getId())).isEqualTo(0);
+    }
 }
