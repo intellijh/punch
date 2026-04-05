@@ -4,6 +4,16 @@
       layout:decorate="~{layout/default}">
 <head>
     <title>장바구니</title>
+    <style>
+        .qty-input::-webkit-inner-spin-button,
+        .qty-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .qty-input {
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
 <body>
 <div layout:fragment="content">
@@ -22,9 +32,28 @@
 
         <!-- 장바구니 목록 -->
         <div th:unless="${cart.items.isEmpty()}">
+
+            <!-- 전체 선택 -->
+            <div class="mb-3 flex items-center gap-2">
+                <input type="checkbox" id="check-all"
+                       class="w-4 h-4 accent-blue-600 cursor-pointer"
+                       checked>
+                <label for="check-all" class="text-sm text-gray-700 cursor-pointer">전체 선택</label>
+            </div>
+
             <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
                 <div th:each="item : ${cart.items}"
-                     class="flex items-center gap-4 p-4">
+                     th:data-product-id="${item.productId}"
+                     th:data-price="${item.price}"
+                     th:data-stock="${item.stockQuantity}"
+                     th:classappend="${item.outOfStock} ? 'opacity-50'"
+                     class="cart-item flex items-center gap-4 p-4">
+
+                    <!-- 체크박스 -->
+                    <input type="checkbox"
+                           th:checked="${item.checked}"
+                           th:disabled="${item.outOfStock}"
+                           class="item-check w-4 h-4 accent-blue-600 cursor-pointer flex-shrink-0">
 
                     <!-- 상품 이미지 -->
                     <a th:href="@{/products/{id}(id=${item.productId})}"
@@ -39,11 +68,15 @@
                         </div>
                     </a>
 
-                    <!-- 상품명 -->
-                    <a th:href="@{/products/{id}(id=${item.productId})}"
-                       th:text="${item.productName}"
-                       class="flex-1 text-sm text-gray-800 hover:text-blue-600 transition line-clamp-2">
-                    </a>
+                    <!-- 상품명 + 품절 표시 -->
+                    <div class="flex-1 min-w-0">
+                        <a th:href="@{/products/{id}(id=${item.productId})}"
+                           th:text="${item.productName}"
+                           class="text-sm text-gray-800 hover:text-blue-600 transition line-clamp-2">
+                        </a>
+                        <p th:if="${item.outOfStock}"
+                           class="text-xs text-red-500 font-semibold mt-1">품절</p>
+                    </div>
 
                     <!-- 단가 -->
                     <div class="text-sm text-gray-500 w-24 text-right">
@@ -51,21 +84,29 @@
                     </div>
 
                     <!-- 수량 변경 -->
-                    <form th:action="@{/cart/items/{id}(id=${item.productId})}" method="post"
-                          class="flex items-center gap-1">
-                        <input type="number" name="quantity"
-                               th:value="${item.quantity}"
-                               min="1" max="100"
-                               class="w-16 text-center border border-gray-300 rounded px-2 py-1 text-sm">
-                        <button type="submit"
-                                class="px-2 py-1 text-xs text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition">
-                            변경
+                    <div class="flex items-center gap-1">
+                        <button type="button"
+                                th:disabled="${item.outOfStock}"
+                                class="qty-btn minus w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 transition text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed">
+                            &minus;
                         </button>
-                    </form>
+                        <input type="number"
+                               th:value="${item.quantity}"
+                               th:disabled="${item.outOfStock}"
+                               min="1"
+                               th:max="${item.stockQuantity}"
+                               class="qty-input w-14 text-center border border-gray-300 rounded px-1 py-1 text-sm disabled:bg-gray-100">
+                        <button type="button"
+                                th:disabled="${item.outOfStock}"
+                                class="qty-btn plus w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 transition text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed">
+                            +
+                        </button>
+                    </div>
 
                     <!-- 소계 -->
                     <div class="text-sm font-semibold text-gray-900 w-28 text-right">
-                        <span th:text="${#numbers.formatInteger(item.subtotal, 0, 'COMMA')}"></span>원
+                        <span class="item-subtotal"
+                              th:text="${#numbers.formatInteger(item.subtotal, 0, 'COMMA')}"></span>원
                     </div>
 
                     <!-- 삭제 -->
@@ -84,10 +125,11 @@
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-gray-600">총 상품금액</span>
                         <span class="text-xl font-bold text-gray-900">
-                            <span th:text="${#numbers.formatInteger(cart.totalPrice, 0, 'COMMA')}"></span>원
+                            <span id="total-price"
+                                  th:text="${#numbers.formatInteger(cart.totalPrice, 0, 'COMMA')}"></span>원
                         </span>
                     </div>
-                    <a th:href="@{/orders/checkout}"
+                    <a id="order-btn" th:href="@{/orders/checkout}"
                        class="block w-full text-center bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
                         주문하기
                     </a>
@@ -97,5 +139,146 @@
 
     </div>
 </div>
+
+<th:block layout:fragment="extra-js">
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        function formatNumber(num) {
+            return num.toLocaleString('ko-KR');
+        }
+
+        function recalculateTotalPrice() {
+            let total = 0;
+            let hasChecked = false;
+            document.querySelectorAll('.cart-item').forEach(function (row) {
+                const check = row.querySelector('.item-check');
+                if (check.checked && !check.disabled) {
+                    hasChecked = true;
+                    const price = parseInt(row.dataset.price);
+                    const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+                    total += price * qty;
+                }
+            });
+            document.getElementById('total-price').textContent = formatNumber(total);
+
+            var orderBtn = document.getElementById('order-btn');
+            if (hasChecked) {
+                orderBtn.classList.remove('pointer-events-none', 'opacity-50');
+            } else {
+                orderBtn.classList.add('pointer-events-none', 'opacity-50');
+            }
+        }
+
+        function sendRequest(url, method, body) {
+            return fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                },
+                body: body ? JSON.stringify(body) : undefined
+            });
+        }
+
+        var checkAll = document.getElementById('check-all');
+
+        function updateCheckAll() {
+            const checks = document.querySelectorAll('.item-check:not(:disabled)');
+            const allChecked = Array.from(checks).every(function (c) { return c.checked; });
+            if (checkAll) checkAll.checked = allChecked;
+        }
+
+        // 수량 변경 (버튼)
+        document.querySelectorAll('.qty-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const row = btn.closest('.cart-item');
+                const input = row.querySelector('.qty-input');
+                const stock = parseInt(row.dataset.stock);
+                let qty = parseInt(input.value) || 1;
+
+                if (btn.classList.contains('minus')) {
+                    qty = Math.max(1, qty - 1);
+                } else {
+                    qty = Math.min(stock, qty + 1);
+                }
+                input.value = qty;
+
+                const price = parseInt(row.dataset.price);
+                row.querySelector('.item-subtotal').textContent = formatNumber(price * qty);
+                recalculateTotalPrice();
+
+                sendRequest('/api/cart/items/' + row.dataset.productId + '/quantity', 'PATCH', { quantity: qty });
+            });
+        });
+
+        // 수량 변경 (직접 입력)
+        document.querySelectorAll('.qty-input').forEach(function (input) {
+            let timer;
+            input.addEventListener('input', function () {
+                const row = input.closest('.cart-item');
+                const stock = parseInt(row.dataset.stock);
+                let qty = parseInt(input.value);
+
+                if (isNaN(qty) || qty < 1) return;
+                if (qty > stock) {
+                    qty = stock;
+                    input.value = qty;
+                }
+
+                const price = parseInt(row.dataset.price);
+                row.querySelector('.item-subtotal').textContent = formatNumber(price * qty);
+                recalculateTotalPrice();
+
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    sendRequest('/api/cart/items/' + row.dataset.productId + '/quantity', 'PATCH', { quantity: qty });
+                }, 300);
+            });
+
+            input.addEventListener('blur', function () {
+                let qty = parseInt(input.value);
+                if (isNaN(qty) || qty < 1) {
+                    qty = 1;
+                    input.value = qty;
+
+                    const row = input.closest('.cart-item');
+                    const price = parseInt(row.dataset.price);
+                    row.querySelector('.item-subtotal').textContent = formatNumber(price * qty);
+                    recalculateTotalPrice();
+                    sendRequest('/api/cart/items/' + row.dataset.productId + '/quantity', 'PATCH', { quantity: qty });
+                }
+            });
+        });
+
+        // 개별 체크박스
+        document.querySelectorAll('.item-check').forEach(function (check) {
+            check.addEventListener('change', function () {
+                const row = check.closest('.cart-item');
+                recalculateTotalPrice();
+                updateCheckAll();
+                sendRequest('/api/cart/items/' + row.dataset.productId + '/checked', 'PATCH', { checked: check.checked });
+            });
+        });
+
+        // 전체 선택
+        if (checkAll) {
+            checkAll.addEventListener('change', function () {
+                const checked = checkAll.checked;
+                document.querySelectorAll('.item-check:not(:disabled)').forEach(function (check) {
+                    check.checked = checked;
+                });
+                recalculateTotalPrice();
+                sendRequest('/api/cart/check-all', 'PATCH', { checked: checked });
+            });
+        }
+
+        updateCheckAll();
+        recalculateTotalPrice();
+    });
+</script>
+</th:block>
 </body>
 </html>

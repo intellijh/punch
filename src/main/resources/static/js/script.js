@@ -35,4 +35,22 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('input[data-phone]').forEach(function (input) {
         input.addEventListener('input', function () { formatPhone(this); });
     });
+
+    // 장바구니 배지 (로그인 상태에서만)
+    var badge = document.getElementById('cart-badge');
+    var isAuthenticated = document.querySelector('meta[name="authenticated"]') !== null;
+    if (badge && isAuthenticated) {
+        fetch('/api/cart/count')
+            .then(function (res) {
+                if (!res.ok) return;
+                return res.json();
+            })
+            .then(function (count) {
+                if (count > 0) {
+                    badge.textContent = count >= 100 ? '99+' : count;
+                    badge.classList.remove('hidden');
+                }
+            })
+            .catch(function () {});
+    }
 });
