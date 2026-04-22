@@ -92,6 +92,36 @@
             </div>
         </div>
 
+        <!-- 관련 상품 -->
+        <section th:if="${not #lists.isEmpty(relatedProducts)}" class="mt-12">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">관련 상품</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <a th:each="related : ${relatedProducts}"
+                   th:href="@{/products/{id}(id=${related.id})}"
+                   class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition overflow-hidden">
+                    <div class="aspect-square bg-gray-100">
+                        <img th:if="${related.thumbnailImageUrl}"
+                             th:src="${related.thumbnailImageUrl}"
+                             th:alt="${related.name}"
+                             class="w-full h-full object-cover">
+                        <div th:unless="${related.thumbnailImageUrl}"
+                             class="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                            이미지 없음
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <p th:text="${related.categoryName}"
+                           class="text-xs text-gray-400 mb-1 truncate"></p>
+                        <p th:text="${related.name}"
+                           class="text-sm text-gray-800 font-medium mb-2 line-clamp-2 leading-snug"></p>
+                        <p class="text-base font-bold text-gray-900">
+                            <span th:text="${#numbers.formatInteger(related.price, 0, 'COMMA')}"></span>원
+                        </p>
+                    </div>
+                </a>
+            </div>
+        </section>
+
         <!-- 목록으로 -->
         <div class="mt-6">
             <a th:href="@{/products}"
