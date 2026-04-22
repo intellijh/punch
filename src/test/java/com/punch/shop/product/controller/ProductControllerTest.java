@@ -5,6 +5,7 @@ import com.punch.shop.product.dto.ProductResponse;
 import com.punch.shop.product.exception.ProductNotFoundException;
 import com.punch.shop.product.model.ProductStatus;
 import com.punch.shop.product.service.ProductService;
+import com.punch.shop.recommendation.service.RecommendationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ class ProductControllerTest {
 
     @MockitoBean
     private ProductService productService;
+
+    @MockitoBean
+    private RecommendationService recommendationService;
 
     private ProductResponse createProductResponse(Long id, String name, BigDecimal price) {
         return ProductResponse.builder()
@@ -116,11 +120,13 @@ class ProductControllerTest {
                 .build();
 
         given(productService.getProduct(1L)).willReturn(response);
+        given(recommendationService.getRelatedProducts(eq(1L), eq(1L), anyInt()))
+                .willReturn(List.of());
 
         mockMvc.perform(get("/products/1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("product/detail"))
-                .andExpect(model().attributeExists("product"));
+                .andExpect(model().attributeExists("product", "relatedProducts"));
     }
 
     @Test
