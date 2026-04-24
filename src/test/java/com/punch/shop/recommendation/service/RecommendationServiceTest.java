@@ -120,7 +120,7 @@ class RecommendationServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getId()).isEqualTo(100L);
-        verify(browsingHistoryRepository, never()).findRecentCategoryIdsByMemberId(any());
+        verify(browsingHistoryRepository, never()).findRecentCategoryIdsByMemberId(any(Long.class));
     }
 
     @Test
@@ -183,6 +183,29 @@ class RecommendationServiceTest {
         List<ProductResponse> result = recommendationService.getRecommendedProducts(1L, 8);
 
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    @DisplayName("최근 본 상품 - 비로그인 사용자는 빈 리스트 반환")
+    void getRecentViewedProductsForAnonymous() {
+        List<ProductResponse> result = recommendationService.getRecentViewedProducts(null, 5);
+
+        assertThat(result).isEmpty();
+
+        verify(browsingHistoryRepository, never())
+                .findRecentViewedProductsByMemberId(any(Long.class), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("최근 본 상품 - 브라우징 이력을 최신순으로 조회")
+    void getRecentViewedProducts() {
+        given(browsingHistoryRepository.findRecentViewedProductsByMemberId(eq(1L), any(Pageable.class)))
+                .willReturn(List.of(viewedProduct, relatedProduct));
+
+        List<ProductResponse> result = recommendationService.getRecentViewedProducts(1L, 5);
+
+        assertThat(result).extracting(ProductResponse::getId)
+                .containsExactly(100L, 101L);
     }
 
     @Test
