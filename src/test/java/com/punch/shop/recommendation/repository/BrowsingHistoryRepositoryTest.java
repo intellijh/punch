@@ -15,8 +15,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -155,5 +157,25 @@ class BrowsingHistoryRepositoryTest {
                 .findRecentViewedProductIdsByMemberId(member.getId(), PageRequest.of(0, 10));
 
         assertThat(productIds).isEmpty();
+    }
+
+    @Test
+    @DisplayName("회원이 최근 본 상품 목록 조회 - 최신순 및 Pageable 제한")
+    void findRecentViewedProductsByMemberId() {
+        BrowsingHistory historyA = browsingHistoryRepository.save(BrowsingHistory.create(member, productA));
+        BrowsingHistory historyB = browsingHistoryRepository.save(BrowsingHistory.create(member, productB));
+        BrowsingHistory historyC = browsingHistoryRepository.save(BrowsingHistory.create(member, productC));
+        ReflectionTestUtils.setField(historyA, "viewedAt", LocalDateTime.now().minusDays(3));
+        ReflectionTestUtils.setField(historyB, "viewedAt", LocalDateTime.now().minusDays(1));
+        ReflectionTestUtils.setField(historyC, "viewedAt", LocalDateTime.now().minusDays(2));
+        flushAndClear();
+
+        List<Product> products = browsingHistoryRepository
+                .findRecentViewedProductsByMemberId(member.getId(), PageRequest.of(0, 2));
+
+        assertThat(products).extracting(Product::getId)
+                .containsExactly(productB.getId(), productC.getId());
+        assertThat(products).extracting(product -> product.getCategory().getName())
+                .containsExactly(fashion.getName(), electronics.getName());
     }
 }
