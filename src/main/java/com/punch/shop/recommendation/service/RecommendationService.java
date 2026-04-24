@@ -19,7 +19,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class RecommendationService {
 
-    private static final int EXCLUDE_VIEWED_LIMIT = 20;
+    private static final int RECOMMENDATION_EXCLUDE_VIEWED_LIMIT = 5;
 
     private final BrowsingHistoryRepository browsingHistoryRepository;
     private final ProductRepository productRepository;
@@ -48,7 +48,7 @@ public class RecommendationService {
         }
 
         List<Long> excluded = browsingHistoryRepository.findRecentViewedProductIdsByMemberId(
-                memberId, PageRequest.of(0, EXCLUDE_VIEWED_LIMIT));
+                memberId, PageRequest.of(0, RECOMMENDATION_EXCLUDE_VIEWED_LIMIT));
         if (excluded.isEmpty()) {
             excluded = List.of(0L);
         }
@@ -59,6 +59,17 @@ public class RecommendationService {
             return popular(limit);
         }
         return products.stream().map(ProductResponse::from).toList();
+    }
+
+    public List<ProductResponse> getRecentViewedProducts(Long memberId, int limit) {
+        if (memberId == null) {
+            return List.of();
+        }
+
+        return browsingHistoryRepository.findRecentViewedProductsByMemberId(memberId, PageRequest.of(0, limit))
+                .stream()
+                .map(ProductResponse::from)
+                .toList();
     }
 
     public List<ProductResponse> getRelatedProducts(Long productId, Long categoryId, int limit) {

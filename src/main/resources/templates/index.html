@@ -73,7 +73,7 @@
                     전체보기 →
                 </a>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
                 <a th:each="product : ${recommendedProducts}"
                    th:href="@{/products/{id}(id=${product.id})}"
                    class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition overflow-hidden">
@@ -98,6 +98,36 @@
                     </div>
                 </a>
             </div>
+        </div>
+    </section>
+
+    <!-- Recent Viewed Products Section -->
+    <section th:if="${not #lists.isEmpty(recentViewedProducts)}" class="container mx-auto px-4 py-12">
+        <h2 class="text-2xl font-bold mb-6">최근 본 상품</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            <a th:each="product : ${recentViewedProducts}"
+               th:href="@{/products/{id}(id=${product.id})}"
+               class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition overflow-hidden">
+                <div class="aspect-square bg-gray-100">
+                    <img th:if="${product.thumbnailImageUrl}"
+                         th:src="${product.thumbnailImageUrl}"
+                         th:alt="${product.name}"
+                         class="w-full h-full object-cover">
+                    <div th:unless="${product.thumbnailImageUrl}"
+                         class="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                        이미지 없음
+                    </div>
+                </div>
+                <div class="p-3">
+                    <p th:text="${product.categoryName}"
+                       class="text-xs text-gray-400 mb-1 truncate"></p>
+                    <p th:text="${product.name}"
+                       class="text-sm text-gray-800 font-medium mb-2 line-clamp-2 leading-snug"></p>
+                    <p class="text-base font-bold text-gray-900">
+                        <span th:text="${#numbers.formatInteger(product.price, 0, 'COMMA')}"></span>원
+                    </p>
+                </div>
+            </a>
         </div>
     </section>
 

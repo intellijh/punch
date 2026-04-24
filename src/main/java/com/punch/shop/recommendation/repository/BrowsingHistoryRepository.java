@@ -1,6 +1,7 @@
 package com.punch.shop.recommendation.repository;
 
 import com.punch.shop.recommendation.model.BrowsingHistory;
+import com.punch.shop.product.model.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,12 @@ public interface BrowsingHistoryRepository extends JpaRepository<BrowsingHistory
             "WHERE bh.member.id = :memberId " +
             "ORDER BY bh.viewedAt DESC")
     List<Long> findRecentViewedProductIdsByMemberId(@Param("memberId") Long memberId, Pageable pageable);
+
+    @Query("SELECT p FROM BrowsingHistory bh " +
+            "JOIN bh.product p " +
+            "JOIN FETCH p.category " +
+            "WHERE bh.member.id = :memberId " +
+            "AND p.status = 'ACTIVE' " +
+            "ORDER BY bh.viewedAt DESC")
+    List<Product> findRecentViewedProductsByMemberId(@Param("memberId") Long memberId, Pageable pageable);
 }
