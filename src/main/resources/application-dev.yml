@@ -8,6 +8,17 @@ spring:
     hibernate:
       ddl-auto: update
 
+  # Thymeleaf Configuration
+  thymeleaf:
+    cache: false
+
+  # DevTools
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
 # P6Spy Configuration (enabled for dev)
 decorator:
   datasource:
