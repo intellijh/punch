@@ -28,18 +28,10 @@ spring:
 
   # Thymeleaf Configuration
   thymeleaf:
-    cache: false
     prefix: classpath:/templates/
     suffix: .html
     mode: HTML
     encoding: UTF-8
-
-  # DevTools
-  devtools:
-    restart:
-      enabled: true
-    livereload:
-      enabled: true
 
 # Logging Configuration
 logging:

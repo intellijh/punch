@@ -8,6 +8,17 @@ spring:
     hibernate:
       ddl-auto: validate
 
+  # Thymeleaf Configuration
+  thymeleaf:
+    cache: true
+
+  # DevTools
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
 # P6Spy Configuration (disabled for production performance)
 decorator:
   datasource:
